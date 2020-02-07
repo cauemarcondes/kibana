@@ -4,9 +4,16 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-import { EuiPanel, EuiSpacer } from '@elastic/eui';
+import {
+  EuiPanel,
+  EuiSpacer,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiButton
+} from '@elastic/eui';
 import { isEmpty } from 'lodash';
 import React, { useState } from 'react';
+import { i18n } from '@kbn/i18n';
 import { ManagedTable } from '../../../../shared/ManagedTable';
 import { Title } from './Title';
 import { EmptyPrompt } from './EmptyPrompt';
@@ -42,6 +49,7 @@ export const CustomActions = () => {
 
   // TODO: change to items fetched from ES.
   const items: object[] = [];
+  const hasActions = !isEmpty(items);
 
   const onCloseFlyout = () => {
     setIsFlyoutOpen(false);
@@ -54,10 +62,19 @@ export const CustomActions = () => {
   return (
     <>
       <EuiPanel>
-        <Title />
+        <EuiFlexGroup alignItems="center">
+          <EuiFlexItem grow={false}>
+            <Title />
+          </EuiFlexItem>
+          {hasActions && (
+            <CreateActionButton
+              onCreateCustomActionClick={onCreateCustomActionClick}
+            />
+          )}
+        </EuiFlexGroup>
         <EuiSpacer size="m" />
         {isFlyoutOpen && <CustomActionsFlyout onClose={onCloseFlyout} />}
-        {isEmpty(items) ? (
+        {!hasActions ? (
           <EmptyPrompt onCreateCustomActionClick={onCreateCustomActionClick} />
         ) : (
           <ManagedTable
@@ -73,3 +90,22 @@ export const CustomActions = () => {
     </>
   );
 };
+
+const CreateActionButton = ({
+  onCreateCustomActionClick
+}: {
+  onCreateCustomActionClick: () => void;
+}) => (
+  <EuiFlexItem>
+    <EuiFlexGroup alignItems="center" justifyContent="flexEnd">
+      <EuiFlexItem grow={false}>
+        <EuiButton color="primary" fill onClick={onCreateCustomActionClick}>
+          {i18n.translate(
+            'xpack.apm.settings.customizeUI.customActions.createCustomAction',
+            { defaultMessage: 'Create custom action' }
+          )}
+        </EuiButton>
+      </EuiFlexItem>
+    </EuiFlexGroup>
+  </EuiFlexItem>
+);
