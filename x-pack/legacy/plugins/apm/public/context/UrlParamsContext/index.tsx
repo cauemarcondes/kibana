@@ -30,13 +30,18 @@ interface TimeRange {
 }
 
 function useUiFilters(params: IUrlParams): UIFilters {
-  const { kuery, environment, ...urlParams } = params;
+  const { kuery, environment, serviceNameFilter, ...urlParams } = params;
   const localUiFilters = mapValues(
     pickKeys(urlParams, ...localUIFilterNames),
     val => (val ? val.split(',') : [])
   ) as Partial<Record<LocalUIFilterName, string[]>>;
 
-  return useDeepObjectIdentity({ kuery, environment, ...localUiFilters });
+  return useDeepObjectIdentity({
+    kuery,
+    environment,
+    serviceNameFilter,
+    ...localUiFilters
+  });
 }
 
 const defaultRefresh = (time: TimeRange) => {};

@@ -9,4 +9,5 @@ import { LocalUIFilterName } from '../server/lib/ui_filters/local_ui_filters/con
 export type UIFilters = {
   kuery?: string;
   environment?: string;
+  serviceNameFilter?: string;
 } & { [key in LocalUIFilterName]?: string[] };

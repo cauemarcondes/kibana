@@ -9,12 +9,15 @@ import {
   EuiSpacer,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiButton
+  EuiButton,
+  EuiFieldSearch
 } from '@elastic/eui';
 import { isEmpty } from 'lodash';
 import React, { useState } from 'react';
 import { i18n } from '@kbn/i18n';
 import { ManagedTable } from '../../../../shared/ManagedTable';
+import { EnvironmentFilter } from '../../../../shared/EnvironmentFilter';
+import { ServiceFilter } from '../../../../shared/ServiceFilter';
 import { Title } from './Title';
 import { EmptyPrompt } from './EmptyPrompt';
 import { CustomActionsFlyout } from './CustomActionsFlyout';
@@ -48,7 +51,7 @@ export const CustomActions = () => {
   ];
 
   // TODO: change to items fetched from ES.
-  const items: object[] = [];
+  const items: object[] = [{}];
   const hasActions = !isEmpty(items);
 
   const onCloseFlyout = () => {
@@ -67,9 +70,7 @@ export const CustomActions = () => {
             <Title />
           </EuiFlexItem>
           {hasActions && (
-            <CreateActionButton
-              onCreateCustomActionClick={onCreateCustomActionClick}
-            />
+            <CreateActionButton onClick={onCreateCustomActionClick} />
           )}
         </EuiFlexGroup>
         <EuiSpacer size="m" />
@@ -77,29 +78,52 @@ export const CustomActions = () => {
         {!hasActions ? (
           <EmptyPrompt onCreateCustomActionClick={onCreateCustomActionClick} />
         ) : (
-          <ManagedTable
-            items={items}
-            columns={columns}
-            initialPageSize={25}
-            initialSortField="occurrenceCount"
-            initialSortDirection="desc"
-            sortItems={false}
-          />
+          <>
+            <Filters />
+            <ManagedTable
+              items={items}
+              columns={columns}
+              initialPageSize={25}
+              initialSortField="occurrenceCount"
+              initialSortDirection="desc"
+              sortItems={false}
+            />
+          </>
         )}
       </EuiPanel>
     </>
   );
 };
 
-const CreateActionButton = ({
-  onCreateCustomActionClick
-}: {
-  onCreateCustomActionClick: () => void;
-}) => (
+const Filters = () => {
+  return (
+    <EuiFlexGroup>
+      <EuiFlexItem>
+        <EuiFieldSearch
+          fullWidth
+          // onChange={onSearchChange}
+          placeholder={i18n.translate('xpack.apm.searchInput.filter', {
+            defaultMessage: 'Filter actions...'
+          })}
+          // isInvalid={noResultFound}
+          // value={searchTerm}
+        />
+      </EuiFlexItem>
+      <EuiFlexItem grow={false}>
+        <ServiceFilter />
+      </EuiFlexItem>
+      <EuiFlexItem grow={false}>
+        <EnvironmentFilter />
+      </EuiFlexItem>
+    </EuiFlexGroup>
+  );
+};
+
+const CreateActionButton = ({ onClick }: { onClick: () => void }) => (
   <EuiFlexItem>
     <EuiFlexGroup alignItems="center" justifyContent="flexEnd">
       <EuiFlexItem grow={false}>
-        <EuiButton color="primary" fill onClick={onCreateCustomActionClick}>
+        <EuiButton color="primary" fill onClick={onClick}>
           {i18n.translate(
             'xpack.apm.settings.customizeUI.customActions.createCustomAction',
             { defaultMessage: 'Create custom action' }

@@ -55,7 +55,8 @@ export function resolveUrlParams(location: Location, state: TimeUrlParams) {
     rangeFrom = TIMEPICKER_DEFAULTS.rangeFrom,
     rangeTo = TIMEPICKER_DEFAULTS.rangeTo,
     environment,
-    searchTerm
+    searchTerm,
+    serviceName: serviceNameFilter
   } = query;
 
   const localUIFilters = pickKeys(query, ...localUIFilterNames);
@@ -96,6 +97,7 @@ export function resolveUrlParams(location: Location, state: TimeUrlParams) {
 
     // ui filters
     environment,
+    serviceNameFilter,
     ...localUIFilters
   });
 }
