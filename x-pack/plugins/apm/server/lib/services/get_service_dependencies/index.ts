@@ -5,32 +5,33 @@
  * 2.0.
  */
 
-import { ValuesType } from 'utility-types';
 import { merge } from 'lodash';
+import { ValuesType } from 'utility-types';
+import { Coordinate } from '../../../../typings/timeseries';
 import { SPAN_DESTINATION_SERVICE_RESOURCE } from '../../../../common/elasticsearch_fieldnames';
-import { maybe } from '../../../../common/utils/maybe';
 import { isFiniteNumber } from '../../../../common/utils/is_finite_number';
-import { AgentName } from '../../../../typings/es_schemas/ui/fields/agent';
 import { joinByKey } from '../../../../common/utils/join_by_key';
-import { Setup, SetupTimeRange } from '../../helpers/setup_request';
-import { getMetrics } from './get_metrics';
-import { getDestinationMap } from './get_destination_map';
-import { calculateThroughput } from '../../helpers/calculate_throughput';
+import { maybe } from '../../../../common/utils/maybe';
+import { AgentName } from '../../../../typings/es_schemas/ui/fields/agent';
 import { withApmSpan } from '../../../utils/with_apm_span';
+import { calculateThroughput } from '../../helpers/calculate_throughput';
+import { Setup } from '../../helpers/setup_request';
+import { getDestinationMap } from './get_destination_map';
+import { getMetrics } from './get_metrics';
 
 export type ServiceDependencyItem = {
   name: string;
   latency: {
     value: number | null;
-    timeseries: Array<{ x: number; y: number | null }>;
+    timeseries: Coordinate[];
   };
   throughput: {
     value: number | null;
-    timeseries: Array<{ x: number; y: number | null }>;
+    timeseries: Coordinate[];
   };
   errorRate: {
     value: number | null;
-    timeseries: Array<{ x: number; y: number | null }>;
+    timeseries: Coordinate[];
   };
   impact: number;
 } & (
@@ -48,25 +49,32 @@ export function getServiceDependencies({
   serviceName,
   environment,
   numBuckets,
+  start,
+  end,
 }: {
   serviceName: string;
-  setup: Setup & SetupTimeRange;
+  setup: Setup;
   environment?: string;
   numBuckets: number;
+  start: number;
+  end: number;
 }): Promise<ServiceDependencyItem[]> {
   return withApmSpan('get_service_dependencies', async () => {
-    const { start, end } = setup;
     const [allMetrics, destinationMap] = await Promise.all([
       getMetrics({
         setup,
         serviceName,
         environment,
         numBuckets,
+        start,
+        end,
       }),
       getDestinationMap({
         setup,
         serviceName,
         environment,
+        start,
+        end,
       }),
     ]);
 

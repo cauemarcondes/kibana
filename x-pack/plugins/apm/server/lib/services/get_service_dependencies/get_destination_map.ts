@@ -6,8 +6,6 @@
  */
 
 import { isEqual, keyBy, mapValues } from 'lodash';
-import { pickKeys } from '../../../../common/utils/pick_keys';
-import { AgentName } from '../../../../typings/es_schemas/ui/fields/agent';
 import {
   AGENT_NAME,
   EVENT_OUTCOME,
@@ -20,22 +18,28 @@ import {
   SPAN_TYPE,
 } from '../../../../common/elasticsearch_fieldnames';
 import { ProcessorEvent } from '../../../../common/processor_event';
-import { environmentQuery, rangeQuery } from '../../../../common/utils/queries';
 import { joinByKey } from '../../../../common/utils/join_by_key';
-import { Setup, SetupTimeRange } from '../../helpers/setup_request';
+import { pickKeys } from '../../../../common/utils/pick_keys';
+import { environmentQuery, rangeQuery } from '../../../../common/utils/queries';
+import { AgentName } from '../../../../typings/es_schemas/ui/fields/agent';
 import { withApmSpan } from '../../../utils/with_apm_span';
+import { Setup } from '../../helpers/setup_request';
 
 export const getDestinationMap = ({
   setup,
   serviceName,
   environment,
+  start,
+  end,
 }: {
-  setup: Setup & SetupTimeRange;
+  setup: Setup;
   serviceName: string;
   environment?: string;
+  start: number;
+  end: number;
 }) => {
   return withApmSpan('get_service_destination_map', async () => {
-    const { start, end, apmEventClient } = setup;
+    const { apmEventClient } = setup;
 
     const response = await withApmSpan('get_exit_span_samples', async () =>
       apmEventClient.search({

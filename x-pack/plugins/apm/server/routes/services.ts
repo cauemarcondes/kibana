@@ -7,7 +7,7 @@
 
 import Boom from '@hapi/boom';
 import * as t from 'io-ts';
-import { uniq } from 'lodash';
+import { keyBy, uniq } from 'lodash';
 import { isoToEpochRt } from '../../common/runtime_types/iso_to_epoch_rt';
 import { toNumberRt } from '../../common/runtime_types/to_number_rt';
 import { getSearchAggregatedTransactions } from '../lib/helpers/aggregated_transactions';
@@ -451,6 +451,7 @@ export const serviceDependenciesRoute = createRoute({
       }),
       environmentRt,
       rangeRt,
+      comparisonRangeRt,
     ]),
   }),
   options: {
@@ -460,13 +461,74 @@ export const serviceDependenciesRoute = createRoute({
     const setup = await setupRequest(context, request);
 
     const { serviceName } = context.params.path;
-    const { environment, numBuckets } = context.params.query;
+    const {
+      environment,
+      numBuckets,
+      comparisonStart,
+      comparisonEnd,
+    } = context.params.query;
 
-    return getServiceDependencies({
+    const { start, end } = setup;
+
+    const currentPeriodPeriodPromise = getServiceDependencies({
       serviceName,
       environment,
       setup,
       numBuckets,
+      start,
+      end,
     });
+
+    const previousPeriodPeriodPromise =
+      comparisonStart && comparisonEnd
+        ? getServiceDependencies({
+            serviceName,
+            environment,
+            setup,
+            numBuckets,
+            start: comparisonStart,
+            end: comparisonEnd,
+          }).then((dependencies) => {
+            return dependencies.map((dependency) => {
+              return {
+                ...dependency,
+                latency: {
+                  ...dependency.latency,
+                  timeseries: offsetPreviousPeriodCoordinates({
+                    currentPeriodStart: start,
+                    previousPeriodStart: comparisonStart,
+                    previousPeriodTimeseries: dependency.latency.timeseries,
+                  }),
+                },
+                throughput: {
+                  ...dependency.throughput,
+                  timeseries: offsetPreviousPeriodCoordinates({
+                    currentPeriodStart: start,
+                    previousPeriodStart: comparisonStart,
+                    previousPeriodTimeseries: dependency.throughput.timeseries,
+                  }),
+                },
+                errorRate: {
+                  ...dependency.errorRate,
+                  timeseries: offsetPreviousPeriodCoordinates({
+                    currentPeriodStart: start,
+                    previousPeriodStart: comparisonStart,
+                    previousPeriodTimeseries: dependency.errorRate.timeseries,
+                  }),
+                },
+              };
+            });
+          })
+        : [];
+
+    const [currentPeriod, previousPeriod] = await Promise.all([
+      currentPeriodPeriodPromise,
+      previousPeriodPeriodPromise,
+    ]);
+
+    return {
+      currentPeriod,
+      previousPeriod: keyBy(previousPeriod, 'name'),
+    };
   },
 });

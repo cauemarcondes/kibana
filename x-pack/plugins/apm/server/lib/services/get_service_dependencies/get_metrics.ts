@@ -13,26 +13,30 @@ import {
   SPAN_DESTINATION_SERVICE_RESPONSE_TIME_COUNT,
   SPAN_DESTINATION_SERVICE_RESPONSE_TIME_SUM,
 } from '../../../../common/elasticsearch_fieldnames';
+import { EventOutcome } from '../../../../common/event_outcome';
 import { ProcessorEvent } from '../../../../common/processor_event';
 import { environmentQuery, rangeQuery } from '../../../../common/utils/queries';
-import { getBucketSize } from '../../helpers/get_bucket_size';
-import { EventOutcome } from '../../../../common/event_outcome';
-import { Setup, SetupTimeRange } from '../../helpers/setup_request';
 import { withApmSpan } from '../../../utils/with_apm_span';
+import { getBucketSize } from '../../helpers/get_bucket_size';
+import { Setup } from '../../helpers/setup_request';
 
 export const getMetrics = ({
   setup,
   serviceName,
   environment,
   numBuckets,
+  start,
+  end,
 }: {
-  setup: Setup & SetupTimeRange;
+  setup: Setup;
   serviceName: string;
   environment?: string;
   numBuckets: number;
+  start: number;
+  end: number;
 }) => {
   return withApmSpan('get_service_destination_metrics', async () => {
-    const { start, end, apmEventClient } = setup;
+    const { apmEventClient } = setup;
 
     const response = await apmEventClient.search({
       apm: {
