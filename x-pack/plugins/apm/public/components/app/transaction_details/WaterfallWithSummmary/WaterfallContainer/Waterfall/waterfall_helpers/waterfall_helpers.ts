@@ -307,7 +307,9 @@ export function reparentSpans(waterfallItems: IWaterfallSpanOrTransaction[]) {
   });
 }
 
-export const getChildrenGroupedByParentId = (waterfallItems: IWaterfallSpanOrTransaction[]) =>
+export const getChildrenGroupedByParentId = (
+  waterfallItems: IWaterfallSpanOrTransaction[]
+) =>
   groupBy(waterfallItems, (item) => (item.parentId ? item.parentId : ROOT_ID));
 
 const getEntryWaterfallTransaction = (

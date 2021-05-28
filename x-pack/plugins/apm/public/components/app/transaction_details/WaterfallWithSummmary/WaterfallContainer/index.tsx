@@ -5,11 +5,17 @@
  * 2.0.
  */
 
-import { EuiFlexItem, EuiCheckbox, EuiFieldNumber, EuiBadge } from '@elastic/eui';
+import {
+  EuiFlexItem,
+  EuiCheckbox,
+  EuiFieldNumber,
+  EuiBadge,
+} from '@elastic/eui';
 import { Location } from 'history';
 import React, { useState } from 'react';
 import { keyBy } from 'lodash';
 import { useParams } from 'react-router-dom';
+import { i18n } from '@kbn/i18n';
 import { IUrlParams } from '../../../../../context/url_params_context/types';
 import {
   IWaterfall,
@@ -17,9 +23,8 @@ import {
 } from './Waterfall/waterfall_helpers/waterfall_helpers';
 import { Waterfall } from './Waterfall';
 import { WaterfallLegends } from './WaterfallLegends';
-import { doCompressSpans } from './compress-spans';
+import { compressSpans } from './Waterfall/waterfall_helpers/compress-spans';
 import { useTheme } from '../../../../../hooks/use_theme';
-
 
 interface Props {
   urlParams: IUrlParams;
@@ -36,8 +41,8 @@ export function WaterfallContainer({
 }: Props) {
   const { serviceName } = useParams<{ serviceName: string }>();
 
-  const [compressSpans, setCompressSpans] = useState(false);
-  const [durationThreshold, setDurationThreshold] = useState(5);
+  const [isCompressSpansEnabled, setIsCompressSpansEnabled] = useState(false);
+  const [durationThresholdMs, setDurationThresholdMs] = useState(5);
   const [nPlusOneThreshold, setNPlusOneThreshold] = useState(10);
   const theme = useTheme();
   if (!waterfall) {
@@ -88,47 +93,83 @@ export function WaterfallContainer({
     return { ...legend, value: !legend.value ? serviceName : legend.value };
   });
 
-  const waterfallToRender = compressSpans ? doCompressSpans(waterfall, nPlusOneThreshold, durationThreshold) : waterfall;
+  const waterfallToRender = isCompressSpansEnabled
+    ? compressSpans({ waterfall, nPlusOneThreshold, durationThresholdMs })
+    : waterfall;
 
   return (
     <div>
-      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-      <WaterfallLegends legends={legendsWithFallbackLabel} type={colorBy} />
-        {waterfallToRender.antipatternDetected && <EuiFlexItem style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-
-          <EuiBadge color={theme.eui.euiColorWarning}>
-            N+1 pattern detected!
-          </EuiBadge>
-
-        </EuiFlexItem>}
-        <EuiFlexItem style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <WaterfallLegends legends={legendsWithFallbackLabel} type={colorBy} />
+        {waterfallToRender.antipatternDetected && (
+          <EuiFlexItem
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <EuiBadge color={theme.eui.euiColorWarning}>
+              {i18n.translate(
+                'xpack.apm.watefall.compressedSpans.nPlusOnePatternDetected',
+                { defaultMessage: 'N+1 pattern detected!' }
+              )}
+            </EuiBadge>
+          </EuiFlexItem>
+        )}
+        <EuiFlexItem
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+          }}
+        >
           <div style={{ marginLeft: '5px' }}>
             <EuiFieldNumber
-              value={durationThreshold}
-              prepend={"Duration Threshold"}
-              append={"ms"}
+              value={durationThresholdMs}
+              prepend={i18n.translate(
+                'xpack.apm.watefall.compressedSpans.durationThreshold',
+                { defaultMessage: 'Duration Threshold' }
+              )}
+              append={'ms'}
               min={1}
               max={1000}
               compressed
-              onChange={(e) =>  setDurationThreshold(parseInt(e.target.value)) }
+              onChange={(e) => setDurationThresholdMs(+e.target.value)}
             />
           </div>
           <div style={{ marginLeft: '5px' }}>
             <EuiFieldNumber
               value={nPlusOneThreshold}
-              prepend={"N+1 Threshold"}
+              prepend={i18n.translate(
+                'xpack.apm.watefall.compressedSpans.nPlusOneThreshold',
+                { defaultMessage: 'N+1 Threshold' }
+              )}
               min={2}
               max={20}
               compressed
-              onChange={(e) => { setNPlusOneThreshold(parseInt(e.target.value)) }}
+              onChange={(e) => {
+                setNPlusOneThreshold(+e.target.value);
+              }}
             />
           </div>
           <div style={{ marginLeft: '5px' }}>
             <EuiCheckbox
               id="compress-spans"
-              label="Compress Spans"
-              checked={compressSpans}
-              onChange={() => setCompressSpans(!compressSpans)}
+              label={i18n.translate('xpack.apm.watefall.compressSpans.label', {
+                defaultMessage: 'Compress spans',
+              })}
+              checked={isCompressSpansEnabled}
+              onChange={() => setIsCompressSpansEnabled((state) => !state)}
             />
           </div>
         </EuiFlexItem>
