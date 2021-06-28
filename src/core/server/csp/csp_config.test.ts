@@ -58,8 +58,8 @@ describe('CspConfig', () => {
     });
 
     test('allows "strict" to be set', () => {
-      const config = new CspConfig({ ...defaultConfig, strict: true });
-      expect(config.strict).toEqual(true);
+      const config = new CspConfig({ ...defaultConfig, strict: false });
+      expect(config.strict).toEqual(false);
       expect(config.strict).not.toEqual(CspConfig.DEFAULT.strict);
     });
 

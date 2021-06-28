@@ -20,14 +20,9 @@ import {
 } from '@elastic/eui';
 
 import { CanvasVariable } from '../../../types';
-import { ComponentStrings } from '../../../i18n';
 
 import { EditVar } from './edit_var';
 import { DeleteVar } from './delete_var';
-
-import './var_config.scss';
-
-const { VarConfig: strings } = ComponentStrings;
 
 enum PanelMode {
   List,

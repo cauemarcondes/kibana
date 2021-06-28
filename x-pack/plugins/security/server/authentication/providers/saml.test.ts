@@ -1295,10 +1295,7 @@ describe('SAMLAuthenticationProvider', () => {
       expect(mockOptions.client.asInternalUser.transport.request).toHaveBeenCalledWith({
         method: 'POST',
         path: '/_security/saml/invalidate',
-        body: {
-          query_string: 'SAMLRequest=xxx%20yyy',
-          acs: 'test-protocol://test-hostname:1234/mock-server-basepath/api/security/v1/saml',
-        },
+        body: { query_string: 'SAMLRequest=xxx%20yyy', realm: 'test-realm' },
       });
     });
 
@@ -1417,10 +1414,7 @@ describe('SAMLAuthenticationProvider', () => {
       expect(mockOptions.client.asInternalUser.transport.request).toHaveBeenCalledWith({
         method: 'POST',
         path: '/_security/saml/invalidate',
-        body: {
-          query_string: 'SAMLRequest=xxx%20yyy',
-          acs: 'test-protocol://test-hostname:1234/mock-server-basepath/api/security/v1/saml',
-        },
+        body: { query_string: 'SAMLRequest=xxx%20yyy', realm: 'test-realm' },
       });
     });
 
@@ -1439,10 +1433,7 @@ describe('SAMLAuthenticationProvider', () => {
       expect(mockOptions.client.asInternalUser.transport.request).toHaveBeenCalledWith({
         method: 'POST',
         path: '/_security/saml/invalidate',
-        body: {
-          query_string: 'SAMLRequest=xxx%20yyy',
-          acs: 'test-protocol://test-hostname:1234/mock-server-basepath/api/security/v1/saml',
-        },
+        body: { query_string: 'SAMLRequest=xxx%20yyy', realm: 'test-realm' },
       });
     });
 

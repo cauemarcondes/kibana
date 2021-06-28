@@ -33,7 +33,6 @@ import {
 import { ALERT_DETAILS } from './translations';
 import { useIsolationPrivileges } from '../../../../common/hooks/endpoint/use_isolate_privileges';
 import { endpointAlertCheck } from '../../../../common/utils/endpoint_alert_check';
-import { useWithCaseDetailsRefresh } from '../../../../common/components/endpoint/host_isolation/endpoint_host_isolation_cases_context';
 
 const StyledEuiFlyoutBody = styled(EuiFlyoutBody)`
   .euiFlyoutBody__overflow {
