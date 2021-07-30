@@ -50,6 +50,7 @@ import {
 } from './components/fleet_integration';
 import { getLazyAPMPolicyCreateExtension } from './components/fleet_integration/lazy_apm_policy_create_extension';
 import { getLazyAPMPolicyEditExtension } from './components/fleet_integration/lazy_apm_policy_edit_extension';
+import { getLazyAPMAgentConfigEditExtension } from './components/fleet_integration/lazy_apm_agent_config_edit_extension';
 
 export type ApmPluginSetup = ReturnType<ApmPlugin['setup']>;
 
@@ -345,6 +346,17 @@ export class ApmPlugin implements Plugin<ApmPluginSetup, ApmPluginStart> {
         package: 'apm',
         view: 'package-policy-edit',
         Component: getLazyAPMPolicyEditExtension(),
+      });
+
+      fleet.registerExtension({
+        package: 'apm',
+        view: 'package-policy-edit-tabs',
+        tabs: [
+          {
+            title: 'APM Agents',
+            Component: getLazyAPMAgentConfigEditExtension(),
+          },
+        ],
       });
     }
   }
