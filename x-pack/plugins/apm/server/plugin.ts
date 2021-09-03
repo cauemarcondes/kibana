@@ -55,15 +55,16 @@ import {
   apmFailedTransactionsCorrelationsSearchStrategyProvider,
   FAILED_TRANSACTIONS_CORRELATION_SEARCH_STRATEGY,
 } from './lib/search_strategies/failed_transactions_correlations';
+import { getDeprecations } from './deprecations';
 
 export class APMPlugin
   implements
-    Plugin<
-      APMPluginSetup,
-      void,
-      APMPluginSetupDependencies,
-      APMPluginStartDependencies
-    > {
+  Plugin<
+  APMPluginSetup,
+  void,
+  APMPluginSetupDependencies,
+  APMPluginStartDependencies
+  > {
   private currentConfig?: APMConfig;
   private logger?: Logger;
   constructor(private readonly initContext: PluginInitializerContext) {
@@ -243,6 +244,8 @@ export class APMPlugin
       })();
     });
 
+    core.deprecations.registerDeprecations({ getDeprecations });
+
     return {
       config$: mergedConfig$,
       getApmIndices: boundGetApmIndices,
@@ -294,5 +297,5 @@ export class APMPlugin
     });
   }
 
-  public stop() {}
+  public stop() { }
 }
