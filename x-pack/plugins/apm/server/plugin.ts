@@ -59,12 +59,13 @@ import { getDeprecations } from './deprecations';
 
 export class APMPlugin
   implements
-  Plugin<
-  APMPluginSetup,
-  void,
-  APMPluginSetupDependencies,
-  APMPluginStartDependencies
-  > {
+    Plugin<
+      APMPluginSetup,
+      void,
+      APMPluginSetupDependencies,
+      APMPluginStartDependencies
+    >
+{
   private currentConfig?: APMConfig;
   private logger?: Logger;
   constructor(private readonly initContext: PluginInitializerContext) {
@@ -173,9 +174,10 @@ export class APMPlugin
       })
     );
 
-    const telemetryUsageCounter = resourcePlugins.usageCollection?.setup.createUsageCounter(
-      APM_SERVER_FEATURE_ID
-    );
+    const telemetryUsageCounter =
+      resourcePlugins.usageCollection?.setup.createUsageCounter(
+        APM_SERVER_FEATURE_ID
+      );
 
     registerRoutes({
       core: {
@@ -243,8 +245,12 @@ export class APMPlugin
         );
       })();
     });
-
-    core.deprecations.registerDeprecations({ getDeprecations });
+    core.deprecations.registerDeprecations({
+      getDeprecations: getDeprecations({
+        cloudSetup: plugins.cloud,
+        fleet: resourcePlugins.fleet,
+      }),
+    });
 
     return {
       config$: mergedConfig$,
@@ -297,5 +303,5 @@ export class APMPlugin
     });
   }
 
-  public stop() { }
+  public stop() {}
 }
