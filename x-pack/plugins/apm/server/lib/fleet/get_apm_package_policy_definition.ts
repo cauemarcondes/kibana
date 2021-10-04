@@ -5,18 +5,38 @@
  * 2.0.
  */
 
+import { SavedObjectsClientContract } from 'kibana/server';
 import { POLICY_ELASTIC_AGENT_ON_CLOUD } from '../../../common/fleet';
-import { APMPluginSetupDependencies } from '../../types';
+import {
+  APMPluginSetupDependencies,
+  APMPluginStartDependencies,
+} from '../../types';
 import { APM_PACKAGE_NAME } from './get_cloud_apm_package_policy';
 
 interface GetApmPackagePolicyDefinitionOptions {
   apmServerSchema: Record<string, any>;
   cloudPluginSetup: APMPluginSetupDependencies['cloud'];
 }
-export function getApmPackagePolicyDefinition(
-  options: GetApmPackagePolicyDefinitionOptions
+export async function getApmPackagePolicyDefinition(
+  options: GetApmPackagePolicyDefinitionOptions & {
+    fleetPluginStart: NonNullable<APMPluginStartDependencies['fleet']>;
+    savedObjectsClient: SavedObjectsClientContract;
+  }
 ) {
-  const { apmServerSchema, cloudPluginSetup } = options;
+  const {
+    apmServerSchema,
+    cloudPluginSetup,
+    fleetPluginStart,
+    savedObjectsClient,
+  } = options;
+  const apmPackage = await fleetPluginStart.packageService.getInstallation({
+    savedObjectsClient,
+    pkgName: APM_PACKAGE_NAME,
+  });
+
+  // TODO: check how to get package version
+  const packageVersion = apmPackage?.version || '7.16';
+
   return {
     name: 'Elastic APM',
     namespace: 'default',
@@ -36,7 +56,7 @@ export function getApmPackagePolicyDefinition(
     ],
     package: {
       name: APM_PACKAGE_NAME,
-      version: '0.4.0',
+      version: packageVersion,
       title: 'Elastic APM',
     },
   };

@@ -46,9 +46,11 @@ export async function createCloudApmPackgePolicy({
     (attributes as { schemaJson: string }).schemaJson
   );
   // Merges agent config and source maps with the new APM cloud package policy
-  const apmPackagePolicyDefinition = getApmPackagePolicyDefinition({
+  const apmPackagePolicyDefinition = await getApmPackagePolicyDefinition({
     apmServerSchema,
     cloudPluginSetup,
+    fleetPluginStart,
+    savedObjectsClient,
   });
   const mergedAPMPackagePolicy = await mergePackagePolicyWithApm({
     setup,
