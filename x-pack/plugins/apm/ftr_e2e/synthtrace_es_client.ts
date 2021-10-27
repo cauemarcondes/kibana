@@ -15,6 +15,7 @@ import { chunk } from 'lodash';
 import pLimit from 'p-limit';
 import { inspect } from 'util';
 import { Client } from '@elastic/elasticsearch';
+// import PromiseReturnType from '../../observability/typings/common';
 
 // TODO: duplicate of x-pack/test/apm_api_integration/common/synthtrace_es_client.ts
 // The two clients should be merged and preferably moved into @elastic/apm-synthtrace

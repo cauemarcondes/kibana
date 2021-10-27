@@ -4,6 +4,8 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
+const getSynthtraceEsClient =
+  require('../../synthtrace_es_client').getSynthtraceEsClient;
 
 /// <reference types="cypress" />
 // ***********************************************************
@@ -22,7 +24,21 @@
 /**
  * @type {Cypress.PluginConfig}
  */
-module.exports = () => {
-  // `on` is used to hook into various events Cypress emits
-  // `config` is the resolved Cypress config
+module.exports = (on) => {
+  on('task', {
+    getClient({ esTarget, data }) {
+      console.log('### caue ~ esTarget', esTarget);
+      return new Promise(async (resolve, reject) => {
+        try {
+          const synthtraceEsClient = getSynthtraceEsClient(esTarget);
+          console.log('######## injecting');
+          await synthtraceEsClient.index(data);
+          console.log('######## data injected');
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    },
+  });
 };
