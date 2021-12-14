@@ -255,6 +255,7 @@ export const serviceDetail = {
       element: <ServiceLogs />,
       searchBarOptions: {
         showKueryBar: false,
+        showTimeComparison: true,
       },
     }),
     page({

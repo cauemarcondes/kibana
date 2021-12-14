@@ -9,11 +9,10 @@ import { isEmpty } from 'lodash';
 import { EuiLoadingSpinner, EuiEmptyPrompt } from '@elastic/eui';
 import React, { useMemo } from 'react';
 import { i18n } from '@kbn/i18n';
-import moment from 'moment';
 import { FETCH_STATUS, useFetcher } from '../../../hooks/use_fetcher';
 import { useApmServiceContext } from '../../../context/apm_service/use_apm_service_context';
-import { LogStream } from '../../../../../infra/public';
 import { APIReturnType } from '../../../services/rest/createCallApmApi';
+import { LogsContent } from './logs_content';
 
 import {
   CONTAINER_ID,
@@ -80,15 +79,7 @@ export function ServiceLogs() {
     );
   }
 
-  return (
-    <LogStream
-      columns={[{ type: 'timestamp' }, { type: 'message' }]}
-      height={'60vh'}
-      startTimestamp={moment(start).valueOf()}
-      endTimestamp={moment(end).valueOf()}
-      query={getInfrastructureKQLFilter(data)}
-    />
-  );
+  return <LogsContent data={data} />;
 }
 
 export const getInfrastructureKQLFilter = (
