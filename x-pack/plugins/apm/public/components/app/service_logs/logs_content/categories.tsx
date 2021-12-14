@@ -16,7 +16,7 @@ import { getInfrastructureKQLFilter } from '..';
 import { useFetcher } from '../../../../hooks/use_fetcher';
 import { APIReturnType } from '../../../../services/rest/createCallApmApi';
 import { InfrastructureResponse } from './';
-// import { ListMetric } from '../../../shared/list_metric';
+import { ListMetric } from '../../../shared/list_metric';
 
 type LogsCategories = APIReturnType<'GET /internal/apm/logs_categories'>;
 type LogsCategory = LogsCategories['logsCategories'][0];
@@ -76,19 +76,19 @@ export function Categories({ start, end, infrastructure }: Props) {
       width: '100px',
       sortable: true,
     },
-    // {
-    //   field: 'timeseries',
-    //   name: 'Timeseries',
-    //   width: '100px',
-    //   render: (_, { timeseries }) => (
-    //     <ListMetric
-    //       series={timeseries?.currentPeriod}
-    //       comparisonSeries={timeseries?.previousPeriod}
-    //       color="euiColorVis1"
-    //       valueLabel={1}
-    //     />
-    //   ),
-    // },
+    {
+      field: 'timeseries',
+      name: 'Timeseries',
+      width: '100px',
+      render: (_, { timeseries }) => (
+        <ListMetric
+          series={timeseries}
+          // comparisonSeries={timeseries?.previousPeriod}
+          color="euiColorVis1"
+          valueLabel={1}
+        />
+      ),
+    },
     {
       field: 'category',
       name: 'Category',

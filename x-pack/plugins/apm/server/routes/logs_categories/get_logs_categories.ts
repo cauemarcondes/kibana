@@ -7,6 +7,7 @@
 
 import { kqlQuery, rangeQuery } from '../../../../observability/server';
 import { Setup } from '../../lib/helpers/setup_request';
+import { getBucketSize } from '../../lib/helpers/get_bucket_size';
 
 export async function getLogsCategories({
   setup,
@@ -21,6 +22,7 @@ export async function getLogsCategories({
   kuery: string;
   offset?: string;
 }) {
+  const { intervalString } = getBucketSize({ start, end, numBuckets: 20 });
   const { internalClient } = setup;
   const params = {
     index: 'test-logs-*',
@@ -32,7 +34,22 @@ export async function getLogsCategories({
         },
       },
       aggs: {
-        categories: { terms: { field: 'template.keyword' } },
+        categories: {
+          terms: { field: 'template.keyword' },
+          aggs: {
+            timeseries: {
+              date_histogram: {
+                field: '@timestamp',
+                fixed_interval: intervalString,
+                min_doc_count: 0,
+                extended_bounds: {
+                  min: start,
+                  max: end,
+                },
+              },
+            },
+          },
+        },
       },
     },
   };
@@ -43,6 +60,10 @@ export async function getLogsCategories({
         return {
           category: bucket.key,
           count: bucket.doc_count,
+          timeseries: bucket.timeseries.buckets.map((item) => ({
+            x: item.key,
+            y: item.doc_count,
+          })),
         };
       }) || [],
   };
