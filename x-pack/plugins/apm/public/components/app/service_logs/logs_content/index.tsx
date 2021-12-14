@@ -23,6 +23,12 @@ interface Props {
 }
 
 export function LogsContent({ data }: Props) {
+  const {
+    query: { rangeFrom, rangeTo },
+  } = useApmParams('/services/{serviceName}/logs');
+
+  const { start, end } = useTimeRange({ rangeFrom, rangeTo });
+
   const tabs = [
     {
       key: 'stream',
@@ -36,7 +42,7 @@ export function LogsContent({ data }: Props) {
       label: i18n.translate('xpack.apm.logs.tabs.categories', {
         defaultMessage: 'Categories',
       }),
-      component: <Categories />,
+      component: <Categories start={start} end={end} />,
     },
   ];
   const [currentTab, setCurrentTab] = useState(tabs[1]);

@@ -12,54 +12,77 @@ import {
   RIGHT_ALIGNMENT,
 } from '@elastic/eui';
 import React, { useState } from 'react';
-import { ListMetric } from '../../../shared/list_metric';
-import { data } from './data';
+import { useFetcher } from '../../../../hooks/use_fetcher';
+import { APIReturnType } from '../../../../services/rest/createCallApmApi';
+// import { ListMetric } from '../../../shared/list_metric';
 
-type Data = typeof data[0];
+type LogsCategories = APIReturnType<'GET /internal/apm/logs_categories'>;
+type LogsCategory = LogsCategories['logsCategories'][0];
 
-export function Categories() {
+interface Props {
+  start: string;
+  end: string;
+}
+
+const INITIAL_STATE: LogsCategories = {
+  logsCategories: [],
+};
+
+export function Categories({ start, end }: Props) {
   const [itemIdToExpandedRowMap, setItemIdToExpandedRowMap] = useState<
-    Record<string, React.ElementType>
+    Record<string, React.ReactElement>
   >({});
 
-  const toggleDetails = (item: Data) => {
+  const { data = INITIAL_STATE } = useFetcher(
+    (callApmApi) => {
+      if (start && end) {
+        return callApmApi({
+          endpoint: 'GET /internal/apm/logs_categories',
+          params: {
+            query: {
+              start,
+              end,
+            },
+          },
+        });
+      }
+    },
+    [start, end]
+  );
+
+  const toggleDetails = (item: LogsCategory) => {
     const itemIdToExpandedRowMapValues = { ...itemIdToExpandedRowMap };
-    if (itemIdToExpandedRowMapValues[item.id]) {
-      delete itemIdToExpandedRowMapValues[item.id];
+    if (itemIdToExpandedRowMapValues[item.category]) {
+      delete itemIdToExpandedRowMapValues[item.category];
     } else {
-      itemIdToExpandedRowMapValues[item.id] = <div>details</div>;
+      itemIdToExpandedRowMapValues[item.category] = <div>details</div>;
     }
     setItemIdToExpandedRowMap(itemIdToExpandedRowMapValues);
   };
 
-  const columns: Array<EuiBasicTableColumn<Data>> = [
+  const columns: Array<EuiBasicTableColumn<LogsCategory>> = [
     {
       field: 'count',
       name: 'Count',
       width: '100px',
       sortable: true,
     },
-    {
-      field: 'timeseries',
-      name: 'Timeseries',
-      width: '100px',
-      render: (_, { timeseries }) => (
-        <ListMetric
-          series={timeseries?.currentPeriod}
-          comparisonSeries={timeseries?.previousPeriod}
-          color="euiColorVis1"
-          valueLabel={1}
-        />
-      ),
-    },
+    // {
+    //   field: 'timeseries',
+    //   name: 'Timeseries',
+    //   width: '100px',
+    //   render: (_, { timeseries }) => (
+    //     <ListMetric
+    //       series={timeseries?.currentPeriod}
+    //       comparisonSeries={timeseries?.previousPeriod}
+    //       color="euiColorVis1"
+    //       valueLabel={1}
+    //     />
+    //   ),
+    // },
     {
       field: 'category',
       name: 'Category',
-      sortable: true,
-    },
-    {
-      field: 'serviceName',
-      name: 'Service name',
       sortable: true,
     },
     {
@@ -84,12 +107,12 @@ export function Categories() {
   return (
     <EuiBasicTable
       tableCaption="Demo of EuiBasicTable with expanding rows"
-      itemId="id"
+      itemId="category"
       itemIdToExpandedRowMap={itemIdToExpandedRowMap}
       isExpandable={true}
       hasActions={true}
       columns={columns}
-      items={data}
+      items={data.logsCategories}
     />
   );
 }
