@@ -13,6 +13,7 @@ import { LogStream } from '../../../../../../infra/public';
 import { useApmParams } from '../../../../hooks/use_apm_params';
 import { useTimeRange } from '../../../../hooks/use_time_range';
 import { APIReturnType } from '../../../../services/rest/createCallApmApi';
+import { getTimeRangeComparison } from '../../../shared/time_comparison/get_time_range_comparison';
 import { Categories } from './categories';
 
 export type InfrastructureResponse =
@@ -24,10 +25,17 @@ interface Props {
 
 export function LogsContent({ data }: Props) {
   const {
-    query: { rangeFrom, rangeTo },
+    query: { rangeFrom, rangeTo, comparisonEnabled, comparisonType },
   } = useApmParams('/services/{serviceName}/logs');
 
   const { start, end } = useTimeRange({ rangeFrom, rangeTo });
+
+  const { offset } = getTimeRangeComparison({
+    comparisonEnabled,
+    comparisonType,
+    start,
+    end,
+  });
 
   const tabs = [
     {
@@ -42,7 +50,14 @@ export function LogsContent({ data }: Props) {
       label: i18n.translate('xpack.apm.logs.tabs.categories', {
         defaultMessage: 'Categories',
       }),
-      component: <Categories start={start} end={end} infrastructure={data} />,
+      component: (
+        <Categories
+          start={start}
+          end={end}
+          infrastructure={data}
+          offset={offset}
+        />
+      ),
     },
   ];
   const [currentTab, setCurrentTab] = useState(tabs[1]);

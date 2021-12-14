@@ -19,19 +19,21 @@ import { InfrastructureResponse } from './';
 import { ListMetric } from '../../../shared/list_metric';
 
 type LogsCategories = APIReturnType<'GET /internal/apm/logs_categories'>;
-type LogsCategory = LogsCategories['logsCategories'][0];
+type LogsCategory = LogsCategories['currentPeriod'][0];
 
 interface Props {
   start: string;
   end: string;
   infrastructure?: InfrastructureResponse;
+  offset?: string;
 }
 
 const INITIAL_STATE: LogsCategories = {
-  logsCategories: [],
+  currentPeriod: [],
+  previousPeriod: {},
 };
 
-export function Categories({ start, end, infrastructure }: Props) {
+export function Categories({ start, end, infrastructure, offset }: Props) {
   const [itemIdToExpandedRowMap, setItemIdToExpandedRowMap] = useState<
     Record<string, React.ReactElement>
   >({});
@@ -51,12 +53,13 @@ export function Categories({ start, end, infrastructure }: Props) {
               start,
               end,
               kuery,
+              offset,
             },
           },
         });
       }
     },
-    [start, end, kuery]
+    [start, end, kuery, offset]
   );
 
   const toggleDetails = (item: LogsCategory) => {
@@ -80,14 +83,17 @@ export function Categories({ start, end, infrastructure }: Props) {
       field: 'timeseries',
       name: 'Timeseries',
       width: '100px',
-      render: (_, { timeseries }) => (
-        <ListMetric
-          series={timeseries}
-          // comparisonSeries={timeseries?.previousPeriod}
-          color="euiColorVis1"
-          valueLabel={1}
-        />
-      ),
+      render: (_, { category, timeseries }) => {
+        const comparisonSeries = data.previousPeriod?.[category]?.timeseries;
+        return (
+          <ListMetric
+            series={timeseries}
+            comparisonSeries={comparisonSeries}
+            color="euiColorVis1"
+            valueLabel={1}
+          />
+        );
+      },
     },
     {
       field: 'category',
@@ -103,11 +109,12 @@ export function Categories({ start, end, infrastructure }: Props) {
           <span>Expand rows</span>
         </EuiScreenReaderOnly>
       ),
-      render: (item: any) => (
+      render: (item: LogsCategory) => (
         <EuiButtonIcon
           onClick={() => toggleDetails(item)}
-          // @ts-ignore
-          iconType={itemIdToExpandedRowMap[item.id] ? 'arrowUp' : 'arrowDown'}
+          iconType={
+            itemIdToExpandedRowMap[item.category] ? 'arrowUp' : 'arrowDown'
+          }
         />
       ),
     },
@@ -121,7 +128,7 @@ export function Categories({ start, end, infrastructure }: Props) {
       isExpandable={true}
       hasActions={true}
       columns={columns}
-      items={data.logsCategories}
+      items={data.currentPeriod}
     />
   );
 }

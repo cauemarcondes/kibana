@@ -6,6 +6,7 @@
  */
 
 import * as t from 'io-ts';
+import { keyBy } from 'lodash';
 import { setupRequest } from '../../lib/helpers/setup_request';
 import { createApmServerRoute } from '../create_apm_server_route';
 import { createApmServerRouteRepository } from '../create_apm_server_route_repository';
@@ -23,7 +24,19 @@ const logsCategoriesRoute = createApmServerRoute({
     const { params } = resources;
     const { start, end, offset, kuery } = params.query;
 
-    return getLogsCategories({ setup, start, end, offset, kuery });
+    const commonProps = {
+      setup,
+      start,
+      end,
+      kuery,
+    };
+
+    const [currentPeriod, previousPeriod] = await Promise.all([
+      getLogsCategories({ ...commonProps }),
+      offset ? getLogsCategories({ ...commonProps, offset }) : undefined,
+    ]);
+
+    return { currentPeriod, previousPeriod: keyBy(previousPeriod, 'category') };
   },
 });
 

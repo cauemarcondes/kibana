@@ -8,6 +8,7 @@
 import { kqlQuery, rangeQuery } from '../../../../observability/server';
 import { Setup } from '../../lib/helpers/setup_request';
 import { getBucketSize } from '../../lib/helpers/get_bucket_size';
+import { getOffsetInMs } from '../../../common/utils/get_offset_in_ms';
 
 export async function getLogsCategories({
   setup,
@@ -22,6 +23,11 @@ export async function getLogsCategories({
   kuery: string;
   offset?: string;
 }) {
+  const { offsetInMs, startWithOffset, endWithOffset } = getOffsetInMs({
+    start,
+    end,
+    offset,
+  });
   const { intervalString } = getBucketSize({ start, end, numBuckets: 20 });
   const { internalClient } = setup;
   const params = {
@@ -30,7 +36,10 @@ export async function getLogsCategories({
     body: {
       query: {
         bool: {
-          filter: [...rangeQuery(start, end), ...kqlQuery(kuery)],
+          filter: [
+            ...rangeQuery(startWithOffset, endWithOffset),
+            ...kqlQuery(kuery),
+          ],
         },
       },
       aggs: {
@@ -43,8 +52,8 @@ export async function getLogsCategories({
                 fixed_interval: intervalString,
                 min_doc_count: 0,
                 extended_bounds: {
-                  min: start,
-                  max: end,
+                  min: startWithOffset,
+                  max: endWithOffset,
                 },
               },
             },
@@ -54,17 +63,16 @@ export async function getLogsCategories({
     },
   };
   const resp = await internalClient.search('logs_categories', params);
-  return {
-    logsCategories:
-      resp.aggregations?.categories.buckets.map((bucket) => {
-        return {
-          category: bucket.key,
-          count: bucket.doc_count,
-          timeseries: bucket.timeseries.buckets.map((item) => ({
-            x: item.key,
-            y: item.doc_count,
-          })),
-        };
-      }) || [],
-  };
+  return (
+    resp.aggregations?.categories.buckets.map((bucket) => {
+      return {
+        category: bucket.key,
+        count: bucket.doc_count,
+        timeseries: bucket.timeseries.buckets.map((item) => ({
+          x: item.key + offsetInMs,
+          y: item.doc_count,
+        })),
+      };
+    }) || []
+  );
 }
