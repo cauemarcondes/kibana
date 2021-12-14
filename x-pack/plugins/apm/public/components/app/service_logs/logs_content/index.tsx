@@ -15,7 +15,7 @@ import { useTimeRange } from '../../../../hooks/use_time_range';
 import { APIReturnType } from '../../../../services/rest/createCallApmApi';
 import { Categories } from './categories';
 
-type InfrastructureResponse =
+export type InfrastructureResponse =
   APIReturnType<'GET /internal/apm/services/{serviceName}/infrastructure'>;
 
 interface Props {
@@ -42,7 +42,7 @@ export function LogsContent({ data }: Props) {
       label: i18n.translate('xpack.apm.logs.tabs.categories', {
         defaultMessage: 'Categories',
       }),
-      component: <Categories start={start} end={end} />,
+      component: <Categories start={start} end={end} infrastructure={data} />,
     },
   ];
   const [currentTab, setCurrentTab] = useState(tabs[1]);

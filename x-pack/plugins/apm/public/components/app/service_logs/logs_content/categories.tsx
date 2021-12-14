@@ -11,9 +11,11 @@ import {
   EuiScreenReaderOnly,
   RIGHT_ALIGNMENT,
 } from '@elastic/eui';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { getInfrastructureKQLFilter } from '..';
 import { useFetcher } from '../../../../hooks/use_fetcher';
 import { APIReturnType } from '../../../../services/rest/createCallApmApi';
+import { InfrastructureResponse } from './';
 // import { ListMetric } from '../../../shared/list_metric';
 
 type LogsCategories = APIReturnType<'GET /internal/apm/logs_categories'>;
@@ -22,16 +24,22 @@ type LogsCategory = LogsCategories['logsCategories'][0];
 interface Props {
   start: string;
   end: string;
+  infrastructure?: InfrastructureResponse;
 }
 
 const INITIAL_STATE: LogsCategories = {
   logsCategories: [],
 };
 
-export function Categories({ start, end }: Props) {
+export function Categories({ start, end, infrastructure }: Props) {
   const [itemIdToExpandedRowMap, setItemIdToExpandedRowMap] = useState<
     Record<string, React.ReactElement>
   >({});
+
+  const kuery = useMemo(
+    () => getInfrastructureKQLFilter(infrastructure),
+    [infrastructure]
+  );
 
   const { data = INITIAL_STATE } = useFetcher(
     (callApmApi) => {
@@ -42,12 +50,13 @@ export function Categories({ start, end }: Props) {
             query: {
               start,
               end,
+              kuery,
             },
           },
         });
       }
     },
-    [start, end]
+    [start, end, kuery]
   );
 
   const toggleDetails = (item: LogsCategory) => {

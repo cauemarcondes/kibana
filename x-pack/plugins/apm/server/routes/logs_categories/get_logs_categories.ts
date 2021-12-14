@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import { rangeQuery } from '../../../../observability/server';
+import { kqlQuery, rangeQuery } from '../../../../observability/server';
 import { Setup } from '../../lib/helpers/setup_request';
 
 export async function getLogsCategories({
@@ -13,10 +13,12 @@ export async function getLogsCategories({
   start,
   end,
   offset,
+  kuery,
 }: {
   setup: Setup;
   start: number;
   end: number;
+  kuery: string;
   offset?: string;
 }) {
   const { internalClient } = setup;
@@ -26,7 +28,7 @@ export async function getLogsCategories({
     body: {
       query: {
         bool: {
-          filter: [...rangeQuery(start, end)],
+          filter: [...rangeQuery(start, end), ...kqlQuery(kuery)],
         },
       },
       aggs: {
