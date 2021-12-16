@@ -16,12 +16,14 @@ export async function getLogsCategories({
   end,
   offset,
   kuery,
+  version,
 }: {
   setup: Setup;
   start: number;
   end: number;
   kuery: string;
   offset?: string;
+  version?: string;
 }) {
   const { offsetInMs, startWithOffset, endWithOffset } = getOffsetInMs({
     start,
@@ -31,20 +33,29 @@ export async function getLogsCategories({
   const { intervalString } = getBucketSize({ start, end, numBuckets: 20 });
   const { internalClient } = setup;
   const params = {
-    index: 'test-logs-*',
+    index: 'test-log-metrics*',
     size: 0,
     body: {
       query: {
         bool: {
           filter: [
             ...rangeQuery(startWithOffset, endWithOffset),
-            ...kqlQuery(kuery),
+            ...(version ? [] : kqlQuery(kuery)),
+            ...(version
+              ? [
+                  {
+                    term: {
+                      'container.id': version,
+                    },
+                  },
+                ]
+              : []),
           ],
         },
       },
       aggs: {
         categories: {
-          terms: { field: 'template.keyword' },
+          terms: { field: 'category.name.keyword' },
           aggs: {
             timeseries: {
               date_histogram: {
@@ -66,7 +77,7 @@ export async function getLogsCategories({
   return (
     resp.aggregations?.categories.buckets.map((bucket) => {
       return {
-        category: bucket.key,
+        category: bucket.key as string,
         count: bucket.doc_count,
         timeseries: bucket.timeseries.buckets.map((item) => ({
           x: item.key + offsetInMs,
@@ -75,4 +86,54 @@ export async function getLogsCategories({
       };
     }) || []
   );
+}
+
+export async function getLogsCategoriesDetails({
+  setup,
+  start,
+  end,
+  categoryName,
+  kuery,
+}: {
+  setup: Setup;
+  start: number;
+  end: number;
+  categoryName: string;
+  kuery: string;
+}) {
+  const { internalClient } = setup;
+
+  const params = {
+    index: 'test-log-*',
+    _source: ['msg', 'container.name', '@timestamp', 'container.id'],
+    size: 10,
+    body: {
+      query: {
+        bool: {
+          filter: [
+            ...rangeQuery(start, end),
+            ...kqlQuery(kuery),
+            { term: { 'template.keyword': categoryName } },
+          ],
+        },
+      },
+    },
+  };
+  const resp = await internalClient.search<
+    {
+      msg: string;
+      container?: { name: string; id: string };
+      '@timestamp': string;
+    },
+    typeof params
+  >('logs_categories_details', params);
+  return {
+    logs: resp.hits.hits.map(({ _source }) => {
+      return {
+        container: { name: _source.container?.name, id: _source.container?.id },
+        message: _source.msg,
+        timestamp: _source['@timestamp'],
+      };
+    }),
+  };
 }

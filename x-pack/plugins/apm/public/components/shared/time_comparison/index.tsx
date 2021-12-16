@@ -110,6 +110,12 @@ export function getSelectOptions({
           }),
         };
       }
+      case TimeRangeComparisonEnum.Version: {
+        return {
+          value: 'version',
+          text: 'Version',
+        };
+      }
     }
   });
 }

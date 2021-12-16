@@ -13,7 +13,6 @@ import { LogStream } from '../../../../../../infra/public';
 import { useApmParams } from '../../../../hooks/use_apm_params';
 import { useTimeRange } from '../../../../hooks/use_time_range';
 import { APIReturnType } from '../../../../services/rest/createCallApmApi';
-import { getTimeRangeComparison } from '../../../shared/time_comparison/get_time_range_comparison';
 import { Categories } from './categories';
 
 export type InfrastructureResponse =
@@ -29,13 +28,6 @@ export function LogsContent({ data }: Props) {
   } = useApmParams('/services/{serviceName}/logs');
 
   const { start, end } = useTimeRange({ rangeFrom, rangeTo });
-
-  const { offset } = getTimeRangeComparison({
-    comparisonEnabled,
-    comparisonType,
-    start,
-    end,
-  });
 
   const tabs = [
     {
@@ -55,7 +47,8 @@ export function LogsContent({ data }: Props) {
           start={start}
           end={end}
           infrastructure={data}
-          offset={offset}
+          comparisonEnabled={comparisonEnabled}
+          comparisonType={comparisonType}
         />
       ),
     },

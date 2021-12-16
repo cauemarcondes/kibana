@@ -47,7 +47,13 @@ export function getTimeRangeComparison({
   start?: string;
   end?: string;
 }) {
-  if (!comparisonEnabled || !comparisonType || !start || !end) {
+  if (
+    !comparisonEnabled ||
+    !comparisonType ||
+    !start ||
+    !end ||
+    comparisonType === TimeRangeComparisonEnum.Version
+  ) {
     return {};
   }
 

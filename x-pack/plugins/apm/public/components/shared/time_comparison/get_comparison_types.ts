@@ -31,15 +31,22 @@ export function getComparisonTypes({
     return [
       TimeRangeComparisonEnum.DayBefore,
       TimeRangeComparisonEnum.WeekBefore,
+      TimeRangeComparisonEnum.Version,
     ];
   }
 
   // Less than or equals to one week
   if (dateDiff <= 7) {
-    return [TimeRangeComparisonEnum.WeekBefore];
+    return [
+      TimeRangeComparisonEnum.WeekBefore,
+      TimeRangeComparisonEnum.Version,
+    ];
   }
   // }
 
   // above one week or when rangeTo is not "now"
-  return [TimeRangeComparisonEnum.PeriodBefore];
+  return [
+    TimeRangeComparisonEnum.PeriodBefore,
+    TimeRangeComparisonEnum.Version,
+  ];
 }
