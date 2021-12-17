@@ -9,6 +9,7 @@ import { kqlQuery, rangeQuery } from '../../../../observability/server';
 import { Setup } from '../../lib/helpers/setup_request';
 import { getBucketSize } from '../../lib/helpers/get_bucket_size';
 import { getOffsetInMs } from '../../../common/utils/get_offset_in_ms';
+import { getServiceInstanceMetadataDetails } from '../../lib/services/get_service_instance_metadata_details';
 
 export async function getLogsCategories({
   setup,
@@ -33,29 +34,20 @@ export async function getLogsCategories({
   const { intervalString } = getBucketSize({ start, end, numBuckets: 20 });
   const { internalClient } = setup;
   const params = {
-    index: 'test-log-metrics*',
+    index: 'spacetime-logs-metrics-*',
     size: 0,
     body: {
       query: {
         bool: {
           filter: [
             ...rangeQuery(startWithOffset, endWithOffset),
-            ...(version ? [] : kqlQuery(kuery)),
-            ...(version
-              ? [
-                  {
-                    term: {
-                      'container.id': version,
-                    },
-                  },
-                ]
-              : []),
+            ...(version ? kqlQuery(version) : kqlQuery(kuery)),
           ],
         },
       },
       aggs: {
         categories: {
-          terms: { field: 'category.name.keyword' },
+          terms: { field: 'template', size: 50 },
           aggs: {
             timeseries: {
               date_histogram: {
@@ -104,8 +96,14 @@ export async function getLogsCategoriesDetails({
   const { internalClient } = setup;
 
   const params = {
-    index: 'test-log-*',
-    _source: ['msg', 'container.name', '@timestamp', 'container.id'],
+    index: 'filebeat*',
+    _source: [
+      'message',
+      'container.name',
+      '@timestamp',
+      'container.id',
+      'host.name',
+    ],
     size: 10,
     body: {
       query: {
@@ -121,8 +119,9 @@ export async function getLogsCategoriesDetails({
   };
   const resp = await internalClient.search<
     {
-      msg: string;
+      message: string;
       container?: { name: string; id: string };
+      host?: { name: string };
       '@timestamp': string;
     },
     typeof params
@@ -131,9 +130,63 @@ export async function getLogsCategoriesDetails({
     logs: resp.hits.hits.map(({ _source }) => {
       return {
         container: { name: _source.container?.name, id: _source.container?.id },
-        message: _source.msg,
+        host: { name: _source.host?.name },
+        message: _source.message,
         timestamp: _source['@timestamp'],
       };
     }),
   };
+}
+
+export async function getLogsVersions({
+  setup,
+  start,
+  end,
+  hostNames,
+  containerIds,
+  serviceName,
+}: {
+  setup: Setup;
+  start: number;
+  end: number;
+  hostNames: string[];
+  containerIds: string[];
+  serviceName: string;
+}) {
+  const details = await Promise.all(
+    [...hostNames, ...containerIds].map((value) => {
+      return getServiceInstanceMetadataDetails({
+        setup,
+        start,
+        end,
+        serviceName,
+        serviceNodeName: value,
+      });
+    })
+  );
+
+  const versions: {
+    [key: string]: {
+      containerIds: string[];
+      hostNames: string[];
+    };
+  } = {};
+  details.map((item) => {
+    const version = item.service?.version;
+    if (version) {
+      const current = versions[version];
+      const container = {
+        containerIds: [
+          ...(current?.containerIds || []),
+          item.container?.id,
+        ].filter((_) => _) as string[],
+        hostNames: [...(current?.hostNames || []), item.host?.name].filter(
+          (_) => _
+        ) as string[],
+      };
+      versions[version] = container;
+    }
+  });
+
+  return versions;
 }

@@ -15,7 +15,7 @@ import {
   EuiText,
   RIGHT_ALIGNMENT,
 } from '@elastic/eui';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import classNames from 'classnames';
 import { getInfrastructureKQLFilter } from '..';
@@ -70,42 +70,50 @@ export function Categories({
     end,
   });
 
-  const { data: serviceDetails } = useFetcher(
-    (_callApmApi) => {
-      const containerIds = infrastructure?.serviceInfrastructure.containerIds;
-      if (comparisonType === 'version' && containerIds) {
-        return Promise.all(
-          containerIds.map((containerId) => {
-            return _callApmApi({
-              endpoint:
-                'GET /internal/apm/services/{serviceName}/service_overview_instances/details/{serviceNodeName}',
-              params: {
-                path: {
-                  serviceNodeName: containerId,
-                  serviceName,
-                },
-                query: {
-                  start,
-                  end,
-                },
-              },
-            });
-          })
-        );
-      }
+  const { data: versionsMap = {} } = useFetcher(
+    (callApmApi) => {
+      return callApmApi({
+        endpoint: 'GET /internal/apm/logs_categories/versions',
+        params: {
+          query: {
+            start,
+            end,
+            serviceName,
+            containerIds: JSON.stringify(
+              infrastructure?.serviceInfrastructure.containerIds
+            ),
+            hostNames: JSON.stringify(
+              infrastructure?.serviceInfrastructure.hostNames
+            ),
+          },
+        },
+      });
     },
-    [
-      comparisonType,
-      start,
-      end,
-      infrastructure?.serviceInfrastructure.containerIds,
-      serviceName,
-    ]
+    [start, end, infrastructure?.serviceInfrastructure, serviceName]
+  );
+  const getVersionObject = useCallback(
+    (version: string) => {
+      return { serviceInfrastructure: versionsMap[version] };
+    },
+    [versionsMap]
   );
 
   const { data = INITIAL_STATE } = useFetcher(
     (_callApmApi) => {
       if (start && end) {
+        const versionQuery =
+          currentVersion && previousVersion
+            ? {
+                currentVersion: currentVersion
+                  ? getInfrastructureKQLFilter(getVersionObject(currentVersion))
+                  : undefined,
+                previousVersion: previousVersion
+                  ? getInfrastructureKQLFilter(
+                      getVersionObject(previousVersion)
+                    )
+                  : undefined,
+              }
+            : {};
         return _callApmApi({
           endpoint: 'GET /internal/apm/logs_categories',
           params: {
@@ -114,13 +122,13 @@ export function Categories({
               end,
               kuery,
               offset,
-              currentVersion,
-              previousVersion,
+              ...versionQuery,
             },
           },
         });
       }
     },
+    // eslint-disable-next-line
     [start, end, kuery, offset, currentVersion, previousVersion]
   );
 
@@ -129,13 +137,36 @@ export function Categories({
     if (itemIdToExpandedRowMapValues[item.category]) {
       delete itemIdToExpandedRowMapValues[item.category];
     } else {
+      const currentInfra = currentVersion
+        ? versionsMap[currentVersion]
+        : undefined;
+      const previousInfra = previousVersion
+        ? versionsMap[previousVersion]
+        : undefined;
+
+      const _kuery =
+        currentInfra && previousInfra
+          ? getInfrastructureKQLFilter({
+              serviceInfrastructure: {
+                containerIds: [
+                  ...currentInfra.containerIds,
+                  ...previousInfra.containerIds,
+                ],
+                hostNames: [
+                  ...currentInfra.hostNames,
+                  ...previousInfra.hostNames,
+                ],
+              },
+            })
+          : '';
       itemIdToExpandedRowMapValues[item.category] = (
         <LogsDetails
           start={start}
           end={end}
           categoryName={item.category}
-          previousVersion={previousVersion}
-          currentVersion={currentVersion}
+          previousVersion={previousInfra}
+          currentVersion={currentInfra}
+          kuery={_kuery}
         />
       );
     }
@@ -194,20 +225,20 @@ export function Categories({
 
   const versionOptions = [
     { value: 'none', text: '' },
-    ...(serviceDetails?.map((item) => {
+    ...(Object.keys(versionsMap)?.map((version) => {
       return {
-        value: item.container?.id,
-        text: item.service.version,
+        value: version,
+        text: version,
       };
     }) || []),
   ];
 
   function onChangeCurrentVersion(nextVersion: string) {
-    setCurrentVersion(nextVersion);
+    setCurrentVersion(nextVersion === 'none' ? undefined : nextVersion);
   }
 
   function onChangePreviousVersion(nextVersion: string) {
-    setPreviousVersion(nextVersion);
+    setPreviousVersion(nextVersion === 'none' ? undefined : nextVersion);
   }
 
   return (
@@ -281,44 +312,57 @@ function LogsDetails({
   categoryName,
   currentVersion,
   previousVersion,
+  kuery,
 }: {
   start: string;
   end: string;
   categoryName: string;
-  currentVersion?: string;
-  previousVersion?: string;
+  kuery: string;
+  currentVersion?:
+    | {
+        containerIds: string[];
+        hostNames: string[];
+      }
+    | undefined;
+  previousVersion?:
+    | {
+        containerIds: string[];
+        hostNames: string[];
+      }
+    | undefined;
 }) {
-  const kuery =
-    currentVersion && previousVersion
-      ? [currentVersion, previousVersion]
-          .map((version) => `${CONTAINER_ID}: "${version}"`)
-          .join(' or ')
-      : '';
-
   const { data, status } = useFetcher(
     (callApmApi) => {
       return callApmApi({
-        endpoint: 'GET /internal/apm/logs_categories/{categoryName}',
+        endpoint: 'GET /internal/apm/logs_categories/details',
         params: {
-          path: { categoryName },
-          query: { start, end, kuery },
+          query: { start, end, kuery, categoryName },
         },
       });
     },
     [start, end, categoryName, kuery]
   );
 
-  if (status === FETCH_STATUS.LOADING) {
-    return <EuiLoadingContent />;
+  if (status !== FETCH_STATUS.SUCCESS) {
+    return (
+      <div style={{ width: '100%' }}>
+        <EuiLoadingContent />
+      </div>
+    );
   }
 
   return (
     <StyledUL>
       {data?.logs.map((item, index) => {
-        const containerId = item.container.id;
+        const containerId = item.container?.id;
+        const hostName = item.host?.name || '';
         const classnames = classNames({
-          currentVersion: currentVersion === containerId,
-          previousVersion: previousVersion === containerId,
+          currentVersion: containerId
+            ? currentVersion?.containerIds.includes(containerId)
+            : currentVersion?.hostNames.includes(hostName),
+          previousVersion: containerId
+            ? previousVersion?.containerIds.includes(containerId)
+            : previousVersion?.hostNames.includes(hostName),
         });
         return (
           <li key={index} className={classnames}>
