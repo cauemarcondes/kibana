@@ -2921,6 +2921,10 @@
   version "0.0.0"
   uid ""
 
+"@kbn/axe-config@link:bazel-bin/packages/kbn-axe-config":
+  version "0.0.0"
+  uid ""
+
 "@kbn/babel-code-parser@link:bazel-bin/packages/kbn-babel-code-parser":
   version "0.0.0"
   uid ""
@@ -3030,6 +3034,10 @@
   uid ""
 
 "@kbn/optimizer@link:bazel-bin/packages/kbn-optimizer":
+  version "0.0.0"
+  uid ""
+
+"@kbn/plugin-discovery@link:bazel-bin/packages/kbn-plugin-discovery":
   version "0.0.0"
   uid ""
 
@@ -5939,6 +5947,10 @@
   version "0.0.0"
   uid ""
 
+"@types/kbn__axe-config@link:bazel-bin/packages/kbn-axe-config/npm_module_types":
+  version "0.0.0"
+  uid ""
+
 "@types/kbn__bazel-packages@link:bazel-bin/packages/kbn-bazel-packages/npm_module_types":
   version "0.0.0"
   uid ""
@@ -6020,6 +6032,10 @@
   uid ""
 
 "@types/kbn__optimizer@link:bazel-bin/packages/kbn-optimizer/npm_module_types":
+  version "0.0.0"
+  uid ""
+
+"@types/kbn__plugin-discovery@link:bazel-bin/packages/kbn-plugin-discovery/npm_module_types":
   version "0.0.0"
   uid ""
 
