@@ -24,6 +24,8 @@ export async function getApmPackagePolicies({
   const savedObjectsClient: SavedObjectsClientContract =
     await getInternalSavedObjectsClient(core.setup);
   return await fleetPluginStart.packagePolicyService.list(savedObjectsClient, {
-    kuery: 'ingest-package-policies.package.name:apm',
+    kuery: '',
   });
 }
+// kuery: 'ingest-package-policies.package.name:apm',
+// kuery: 'ingest-agent-policies.name:"Elastic Cloud agent policy"',

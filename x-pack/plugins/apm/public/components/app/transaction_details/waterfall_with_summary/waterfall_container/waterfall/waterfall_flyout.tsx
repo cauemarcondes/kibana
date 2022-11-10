@@ -56,7 +56,7 @@ export function WaterfallFlyout({
           rootTransactionDuration={
             waterfall.rootTransaction?.transaction.duration.us
           }
-          errorCount={waterfall.getErrorCount(currentItem.id)}
+          errorCount={waterfall.errorCountMap[currentItem.id]}
           spanLinksCount={currentItem.spanLinksCount}
         />
       );

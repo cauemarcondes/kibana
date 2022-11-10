@@ -41,7 +41,7 @@ export interface IWaterfall {
   duration: number;
   items: IWaterfallItem[];
   childrenByParentId: Record<string | number, IWaterfallSpanOrTransaction[]>;
-  getErrorCount: (parentId: string) => number;
+  errorCountMap: Record<string, number>;
   legends: IWaterfallLegend[];
   errorItems: IWaterfallError[];
   apiResponse: TraceAPIResponse;
@@ -244,228 +244,228 @@ export function getOrderedWaterfallItems(
   return getSortedChildren(entryWaterfallTransaction);
 }
 
-function getRootTransaction(childrenByParentId: IWaterfallGroup) {
-  const item = first(childrenByParentId.root);
-  if (item && item.docType === 'transaction') {
-    return item.doc;
-  }
-}
+// function getRootTransaction(childrenByParentId: IWaterfallGroup) {
+//   const item = first(childrenByParentId.root);
+//   if (item && item.docType === 'transaction') {
+//     return item.doc;
+//   }
+// }
 
-function getLegends(waterfallItems: IWaterfallItem[]) {
-  const onlyBaseSpanItems = waterfallItems.filter(
-    (item) => item.docType === 'span' || item.docType === 'transaction'
-  ) as IWaterfallSpanOrTransaction[];
+// function getLegends(waterfallItems: IWaterfallItem[]) {
+//   const onlyBaseSpanItems = waterfallItems.filter(
+//     (item) => item.docType === 'span' || item.docType === 'transaction'
+//   ) as IWaterfallSpanOrTransaction[];
 
-  const legends = [
-    WaterfallLegendType.ServiceName,
-    WaterfallLegendType.SpanType,
-  ].flatMap((legendType) => {
-    const allLegendValues = uniq(
-      onlyBaseSpanItems.map((item) => item.legendValues[legendType])
-    );
+//   const legends = [
+//     WaterfallLegendType.ServiceName,
+//     WaterfallLegendType.SpanType,
+//   ].flatMap((legendType) => {
+//     const allLegendValues = uniq(
+//       onlyBaseSpanItems.map((item) => item.legendValues[legendType])
+//     );
 
-    const palette = euiPaletteColorBlind({
-      rotations: Math.ceil(allLegendValues.length / 10),
-    });
+//     const palette = euiPaletteColorBlind({
+//       rotations: Math.ceil(allLegendValues.length / 10),
+//     });
 
-    return allLegendValues.map((value, index) => ({
-      type: legendType,
-      value,
-      color: palette[index],
-    }));
-  });
+//     return allLegendValues.map((value, index) => ({
+//       type: legendType,
+//       value,
+//       color: palette[index],
+//     }));
+//   });
 
-  return legends;
-}
+//   return legends;
+// }
 
-const getWaterfallDuration = (waterfallItems: IWaterfallItem[]) =>
-  Math.max(
-    ...waterfallItems.map(
-      (item) =>
-        item.offset + item.skew + ('duration' in item ? item.duration : 0)
-    ),
-    0
-  );
+// const getWaterfallDuration = (waterfallItems: IWaterfallItem[]) =>
+//   Math.max(
+//     ...waterfallItems.map(
+//       (item) =>
+//         item.offset + item.skew + ('duration' in item ? item.duration : 0)
+//     ),
+//     0
+//   );
 
-const getWaterfallItems = (
-  items: TraceAPIResponse['traceDocs'],
-  linkedChildrenOfSpanCountBySpanId: TraceAPIResponse['linkedChildrenOfSpanCountBySpanId']
-) =>
-  items.map((item) => {
-    const docType: 'span' | 'transaction' = item.processor.event;
-    switch (docType) {
-      case 'span': {
-        const span = item as Span;
-        return getSpanItem(
-          span,
-          linkedChildrenOfSpanCountBySpanId[span.span.id]
-        );
-      }
-      case 'transaction':
-        const transaction = item as Transaction;
-        return getTransactionItem(
-          transaction,
-          linkedChildrenOfSpanCountBySpanId[transaction.transaction.id]
-        );
-    }
-  });
+// const getWaterfallItems = (
+//   items: TraceAPIResponse['traceDocs'],
+//   linkedChildrenOfSpanCountBySpanId: TraceAPIResponse['linkedChildrenOfSpanCountBySpanId']
+// ) =>
+//   items.map((item) => {
+//     const docType: 'span' | 'transaction' = item.processor.event;
+//     switch (docType) {
+//       case 'span': {
+//         const span = item as Span;
+//         return getSpanItem(
+//           span,
+//           linkedChildrenOfSpanCountBySpanId[span.span.id]
+//         );
+//       }
+//       case 'transaction':
+//         const transaction = item as Transaction;
+//         return getTransactionItem(
+//           transaction,
+//           linkedChildrenOfSpanCountBySpanId[transaction.transaction.id]
+//         );
+//     }
+//   });
 
-function reparentSpans(waterfallItems: IWaterfallSpanOrTransaction[]) {
-  // find children that needs to be re-parented and map them to their correct parent id
-  const childIdToParentIdMapping = Object.fromEntries(
-    flatten(
-      waterfallItems.map((waterfallItem) => {
-        if (waterfallItem.docType === 'span') {
-          const childIds = waterfallItem.doc.child?.id ?? [];
-          return childIds.map((id) => [id, waterfallItem.id]);
-        }
-        return [];
-      })
-    )
-  );
+// function reparentSpans(waterfallItems: IWaterfallSpanOrTransaction[]) {
+//   // find children that needs to be re-parented and map them to their correct parent id
+//   const childIdToParentIdMapping = Object.fromEntries(
+//     flatten(
+//       waterfallItems.map((waterfallItem) => {
+//         if (waterfallItem.docType === 'span') {
+//           const childIds = waterfallItem.doc.child?.id ?? [];
+//           return childIds.map((id) => [id, waterfallItem.id]);
+//         }
+//         return [];
+//       })
+//     )
+//   );
 
-  // update parent id for children that needs it or return unchanged
-  return waterfallItems.map((waterfallItem) => {
-    const newParentId = childIdToParentIdMapping[waterfallItem.id];
-    if (newParentId) {
-      return {
-        ...waterfallItem,
-        parentId: newParentId,
-      };
-    }
+//   // update parent id for children that needs it or return unchanged
+//   return waterfallItems.map((waterfallItem) => {
+//     const newParentId = childIdToParentIdMapping[waterfallItem.id];
+//     if (newParentId) {
+//       return {
+//         ...waterfallItem,
+//         parentId: newParentId,
+//       };
+//     }
 
-    return waterfallItem;
-  });
-}
+//     return waterfallItem;
+//   });
+// }
 
-const getChildrenGroupedByParentId = (
-  waterfallItems: IWaterfallSpanOrTransaction[]
-) =>
-  groupBy(waterfallItems, (item) => (item.parentId ? item.parentId : ROOT_ID));
+// const getChildrenGroupedByParentId = (
+//   waterfallItems: IWaterfallSpanOrTransaction[]
+// ) =>
+//   groupBy(waterfallItems, (item) => (item.parentId ? item.parentId : ROOT_ID));
 
-const getEntryWaterfallTransaction = (
-  entryTransactionId: string,
-  waterfallItems: IWaterfallItem[]
-): IWaterfallTransaction | undefined =>
-  waterfallItems.find(
-    (item) => item.docType === 'transaction' && item.id === entryTransactionId
-  ) as IWaterfallTransaction;
+// const getEntryWaterfallTransaction = (
+//   entryTransactionId: string,
+//   waterfallItems: IWaterfallItem[]
+// ): IWaterfallTransaction | undefined =>
+//   waterfallItems.find(
+//     (item) => item.docType === 'transaction' && item.id === entryTransactionId
+//   ) as IWaterfallTransaction;
 
-function isInEntryTransaction(
-  parentIdLookup: Map<string, string>,
-  entryTransactionId: string,
-  currentId: string
-): boolean {
-  if (currentId === entryTransactionId) {
-    return true;
-  }
-  const parentId = parentIdLookup.get(currentId);
-  if (parentId) {
-    return isInEntryTransaction(parentIdLookup, entryTransactionId, parentId);
-  }
-  return false;
-}
+// function isInEntryTransaction(
+//   parentIdLookup: Map<string, string>,
+//   entryTransactionId: string,
+//   currentId: string
+// ): boolean {
+//   if (currentId === entryTransactionId) {
+//     return true;
+//   }
+//   const parentId = parentIdLookup.get(currentId);
+//   if (parentId) {
+//     return isInEntryTransaction(parentIdLookup, entryTransactionId, parentId);
+//   }
+//   return false;
+// }
 
-function getWaterfallErrors(
-  errorDocs: TraceAPIResponse['errorDocs'],
-  items: IWaterfallItem[],
-  entryWaterfallTransaction?: IWaterfallTransaction
-) {
-  const errorItems = errorDocs.map((errorDoc) =>
-    getErrorItem(errorDoc, items, entryWaterfallTransaction)
-  );
-  if (!entryWaterfallTransaction) {
-    return errorItems;
-  }
-  const parentIdLookup = [...items, ...errorItems].reduce(
-    (map, { id, parentId }) => {
-      map.set(id, parentId ?? ROOT_ID);
-      return map;
-    },
-    new Map<string, string>()
-  );
-  return errorItems.filter((errorItem) =>
-    isInEntryTransaction(
-      parentIdLookup,
-      entryWaterfallTransaction?.id,
-      errorItem.id
-    )
-  );
-}
+// function getWaterfallErrors(
+//   errorDocs: TraceAPIResponse['errorDocs'],
+//   items: IWaterfallItem[],
+//   entryWaterfallTransaction?: IWaterfallTransaction
+// ) {
+//   const errorItems = errorDocs.map((errorDoc) =>
+//     getErrorItem(errorDoc, items, entryWaterfallTransaction)
+//   );
+//   if (!entryWaterfallTransaction) {
+//     return errorItems;
+//   }
+//   const parentIdLookup = [...items, ...errorItems].reduce(
+//     (map, { id, parentId }) => {
+//       map.set(id, parentId ?? ROOT_ID);
+//       return map;
+//     },
+//     new Map<string, string>()
+//   );
+//   return errorItems.filter((errorItem) =>
+//     isInEntryTransaction(
+//       parentIdLookup,
+//       entryWaterfallTransaction?.id,
+//       errorItem.id
+//     )
+//   );
+// }
 
 // map parent.id to the number of errors
 /*
   { 'parentId': 2 }
   */
-function getErrorCountByParentId(errorDocs: TraceAPIResponse['errorDocs']) {
-  return errorDocs.reduce<Record<string, number>>((acc, doc) => {
-    const parentId = doc.parent?.id;
+// function getErrorCountByParentId(errorDocs: TraceAPIResponse['errorDocs']) {
+//   return errorDocs.reduce<Record<string, number>>((acc, doc) => {
+//     const parentId = doc.parent?.id;
 
-    if (!parentId) {
-      return acc;
-    }
+//     if (!parentId) {
+//       return acc;
+//     }
 
-    acc[parentId] = (acc[parentId] ?? 0) + 1;
+//     acc[parentId] = (acc[parentId] ?? 0) + 1;
 
-    return acc;
-  }, {});
-}
+//     return acc;
+//   }, {});
+// }
 
-export function getWaterfall(
-  apiResponse: TraceAPIResponse,
-  entryTransactionId?: Transaction['transaction']['id']
-): IWaterfall {
-  if (isEmpty(apiResponse.traceDocs) || !entryTransactionId) {
-    return {
-      apiResponse,
-      duration: 0,
-      items: [],
-      legends: [],
-      errorItems: [],
-      childrenByParentId: {},
-      getErrorCount: () => 0,
-    };
-  }
+// export function getWaterfall(
+//   apiResponse: TraceAPIResponse,
+//   entryTransactionId?: Transaction['transaction']['id']
+// ): IWaterfall {
+//   if (isEmpty(apiResponse.traceDocs) || !entryTransactionId) {
+//     return {
+//       apiResponse,
+//       duration: 0,
+//       items: [],
+//       legends: [],
+//       errorItems: [],
+//       childrenByParentId: {},
+//       getErrorCount: () => 0,
+//     };
+//   }
 
-  const errorCountByParentId = getErrorCountByParentId(apiResponse.errorDocs);
+//   const errorCountByParentId = getErrorCountByParentId(apiResponse.errorDocs);
 
-  const waterfallItems: IWaterfallSpanOrTransaction[] = getWaterfallItems(
-    apiResponse.traceDocs,
-    apiResponse.linkedChildrenOfSpanCountBySpanId
-  );
+//   const waterfallItems: IWaterfallSpanOrTransaction[] = getWaterfallItems(
+//     apiResponse.traceDocs,
+//     apiResponse.linkedChildrenOfSpanCountBySpanId
+//   );
 
-  const childrenByParentId = getChildrenGroupedByParentId(
-    reparentSpans(waterfallItems)
-  );
+//   const childrenByParentId = getChildrenGroupedByParentId(
+//     reparentSpans(waterfallItems)
+//   );
 
-  const entryWaterfallTransaction = getEntryWaterfallTransaction(
-    entryTransactionId,
-    waterfallItems
-  );
+//   const entryWaterfallTransaction = getEntryWaterfallTransaction(
+//     entryTransactionId,
+//     waterfallItems
+//   );
 
-  const items = getOrderedWaterfallItems(
-    childrenByParentId,
-    entryWaterfallTransaction
-  );
-  const errorItems = getWaterfallErrors(
-    apiResponse.errorDocs,
-    items,
-    entryWaterfallTransaction
-  );
+//   const items = getOrderedWaterfallItems(
+//     childrenByParentId,
+//     entryWaterfallTransaction
+//   );
+//   const errorItems = getWaterfallErrors(
+//     apiResponse.errorDocs,
+//     items,
+//     entryWaterfallTransaction
+//   );
 
-  const rootTransaction = getRootTransaction(childrenByParentId);
-  const duration = getWaterfallDuration(items);
-  const legends = getLegends(items);
+//   const rootTransaction = getRootTransaction(childrenByParentId);
+//   const duration = getWaterfallDuration(items);
+//   const legends = getLegends(items);
 
-  return {
-    apiResponse,
-    entryWaterfallTransaction,
-    rootTransaction,
-    duration,
-    items,
-    legends,
-    errorItems,
-    childrenByParentId: getChildrenGroupedByParentId(items),
-    getErrorCount: (parentId: string) => errorCountByParentId[parentId] ?? 0,
-  };
-}
+//   return {
+//     apiResponse,
+//     entryWaterfallTransaction,
+//     rootTransaction,
+//     duration,
+//     items,
+//     legends,
+//     errorItems,
+//     childrenByParentId: getChildrenGroupedByParentId(items),
+//     getErrorCount: (parentId: string) => errorCountByParentId[parentId] ?? 0,
+//   };
+// }

@@ -28,6 +28,7 @@ import {
   CriticalPathResponse,
   getAggregatedCriticalPath,
 } from './get_aggregated_critical_path';
+import { getWaterfall, IWaterfall } from './waterfall/waterfall_helpers';
 
 const tracesRoute = createApmServerRoute({
   endpoint: 'GET /internal/apm/traces',
@@ -89,31 +90,27 @@ const tracesByIdRoute = createApmServerRoute({
     path: t.type({
       traceId: t.string,
     }),
-    query: rangeRt,
+    query: t.intersection([rangeRt, t.partial({ transactionId: t.string })]),
   }),
   options: { tags: ['access:apm'] },
-  handler: async (
-    resources
-  ): Promise<{
-    exceedsMax: boolean;
-    traceDocs: Array<
-      | import('./../../../typings/es_schemas/ui/transaction').Transaction
-      | import('./../../../typings/es_schemas/ui/span').Span
-    >;
-    errorDocs: Array<
-      import('./../../../typings/es_schemas/ui/apm_error').APMError
-    >;
-    linkedChildrenOfSpanCountBySpanId: Record<string, number>;
-  }> => {
+  handler: async (resources): Promise<IWaterfall> => {
     const [setup, apmEventClient] = await Promise.all([
       setupRequest(resources),
       getApmEventClient(resources),
     ]);
     const { params } = resources;
     const { traceId } = params.path;
-    const { start, end } = params.query;
+    const { start, end, transactionId } = params.query;
     const { config } = setup;
-    return getTraceItems(traceId, config, apmEventClient, start, end);
+    const traces = await getTraceItems(
+      traceId,
+      config,
+      apmEventClient,
+      start,
+      end
+    );
+    const waterfall = getWaterfall(traces, transactionId);
+    return waterfall;
   },
 });
 

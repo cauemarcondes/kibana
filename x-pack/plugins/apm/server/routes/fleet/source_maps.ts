@@ -160,11 +160,13 @@ export async function updateSourceMapsOnFleetPolicies({
   elasticsearchClient: ElasticsearchClient;
 }) {
   const artifacts = await listArtifacts({ fleetPluginStart });
+  console.log('### caue ~ artifacts', artifacts);
 
   const apmFleetPolicies = await getApmPackagePolicies({
     core,
     fleetPluginStart,
   });
+  console.log('### caue ~ apmFleetPolicies', apmFleetPolicies);
 
   return Promise.all(
     apmFleetPolicies.items.map(async (item) => {

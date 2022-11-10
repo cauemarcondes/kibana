@@ -109,6 +109,7 @@ const uploadSourceMapRoute = createApmServerRoute({
         return artifact;
       }
     } catch (e) {
+      console.log('### caue ~ handler: ~ e', e);
       throw Boom.internal(
         'Something went wrong while creating a new source map',
         e

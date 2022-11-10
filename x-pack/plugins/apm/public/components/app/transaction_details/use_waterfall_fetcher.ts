@@ -8,13 +8,24 @@
 import { useMemo } from 'react';
 import { useFetcher } from '../../../hooks/use_fetcher';
 import { APIReturnType } from '../../../services/rest/create_call_apm_api';
-import { getWaterfall } from './waterfall_with_summary/waterfall_container/waterfall/waterfall_helpers/waterfall_helpers';
+// import { getWaterfall } from './waterfall_with_summary/waterfall_container/waterfall/waterfall_helpers/waterfall_helpers';
 
-const INITIAL_DATA: APIReturnType<'GET /internal/apm/traces/{traceId}'> = {
-  errorDocs: [],
-  traceDocs: [],
-  exceedsMax: false,
-  linkedChildrenOfSpanCountBySpanId: {},
+// const INITIAL_DATA: APIReturnType<'GET /internal/apm/traces/{traceId}'> = {
+//   errorDocs: [],
+//   traceDocs: [],
+//   exceedsMax: false,
+//   linkedChildrenOfSpanCountBySpanId: {},
+// };
+
+const INITIAL_STATE = {
+  apiResponse: {},
+  duration: 0,
+  items: [],
+  legends: [],
+  errorItems: [],
+  childrenByParentId: {},
+  errorCountMap: {},
+  entryWaterfallTransaction: undefined,
 };
 export type WaterfallFetchResult = ReturnType<typeof useWaterfallFetcher>;
 
@@ -30,7 +41,7 @@ export function useWaterfallFetcher({
   end: string;
 }) {
   const {
-    data = INITIAL_DATA,
+    data = INITIAL_STATE,
     status,
     error,
   } = useFetcher(
@@ -42,18 +53,19 @@ export function useWaterfallFetcher({
             query: {
               start,
               end,
+              transactionId,
             },
           },
         });
       }
     },
-    [traceId, start, end]
+    [traceId, start, end, transactionId]
   );
 
-  const waterfall = useMemo(
-    () => getWaterfall(data, transactionId),
-    [data, transactionId]
-  );
+  // const waterfall = useMemo(
+  //   () => getWaterfall(data, transactionId),
+  //   [data, transactionId]
+  // );
 
-  return { waterfall, status, error };
+  return { waterfall: data, status, error };
 }

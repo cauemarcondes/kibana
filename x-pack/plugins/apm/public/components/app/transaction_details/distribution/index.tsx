@@ -64,7 +64,7 @@ export function TransactionDistribution({
   const { serviceName } = useApmServiceContext();
 
   const markerCurrentEvent =
-    waterfallFetchResult.waterfall.entryWaterfallTransaction?.doc.transaction
+    waterfallFetchResult?.waterfall?.entryWaterfallTransaction?.doc.transaction
       .duration.us;
 
   const {
