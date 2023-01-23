@@ -12,7 +12,7 @@ import { Scenario } from '../cli/scenario';
 import { RunOptions } from '../cli/utils/parse_run_cli_flags';
 import { getSynthtraceEnvironment } from '../lib/utils/get_synthtrace_environment';
 
-const ENVIRONMENT = getSynthtraceEnvironment(__filename);
+const ENVIRONMENT = 'normal-1'; // getSynthtraceEnvironment(__filename);
 
 const scenario: Scenario<ApmFields> = async (runOptions: RunOptions) => {
   return {

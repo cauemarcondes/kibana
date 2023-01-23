@@ -8,6 +8,7 @@
 import {
   EuiAccordion,
   EuiAccordionProps,
+  EuiButton,
   EuiFlexGroup,
   EuiFlexItem,
   EuiIcon,
@@ -15,7 +16,6 @@ import {
 } from '@elastic/eui';
 import { euiStyled } from '@kbn/kibana-react-plugin/common';
 import { groupBy } from 'lodash';
-import { transparentize } from 'polished';
 import React, { useState } from 'react';
 import { getCriticalPath } from '../../../../../../../common/critical_path/get_critical_path';
 import { useTheme } from '../../../../../../hooks/use_theme';
@@ -39,7 +39,10 @@ interface AccordionWaterfallProps {
     flyoutDetailTab: string
   ) => void;
   showCriticalPath: boolean;
-  maxLevelOpen: number;
+  children: React.ReactNode[];
+  isShowMoreButtonVisible: boolean;
+  onShowMoreClick: () => void;
+  numberOfChildren: number;
 }
 
 const ACCORDION_HEIGHT = '48px';
@@ -83,7 +86,7 @@ const StyledAccordion = euiStyled(EuiAccordion).withConfig({
   }
 `;
 
-export function AccordionWaterfall(props: AccordionWaterfallProps) {
+function AccordionWaterfallComponent(props: AccordionWaterfallProps) {
   const {
     item,
     level,
@@ -93,13 +96,14 @@ export function AccordionWaterfall(props: AccordionWaterfallProps) {
     timelineMargins,
     onClickWaterfallItem,
     showCriticalPath,
-    maxLevelOpen,
+    children,
+    isShowMoreButtonVisible,
+    onShowMoreClick,
+    numberOfChildren,
   } = props;
   const theme = useTheme();
 
   const [isOpen, setIsOpen] = useState(props.isOpen);
-
-  let children = waterfall.childrenByParentId[item.id] || [];
 
   const criticalPath = showCriticalPath
     ? getCriticalPath(waterfall)
@@ -110,14 +114,14 @@ export function AccordionWaterfall(props: AccordionWaterfallProps) {
     (segment) => segment.item.id
   );
 
-  let displayedColor = item.color;
+  const displayedColor = item.color;
 
-  if (showCriticalPath) {
-    children = children.filter(
-      (child) => criticalPathSegmentsById[child.id]?.length
-    );
-    displayedColor = transparentize(0.5, item.color);
-  }
+  // if (showCriticalPath) {
+  //   children = children.filter(
+  //     (child) => criticalPathSegmentsById[child.id]?.length
+  //   );
+  //   displayedColor = transparentize(0.5, item.color);
+  // }
 
   const errorCount = waterfall.getErrorCount(item.id);
 
@@ -147,7 +151,7 @@ export function AccordionWaterfall(props: AccordionWaterfallProps) {
             <ToggleAccordionButton
               show={hasToggle}
               isOpen={isOpen}
-              childrenAmount={children.length}
+              childrenAmount={numberOfChildren}
               onClick={toggleAccordion}
             />
           </EuiFlexItem>
@@ -182,16 +186,14 @@ export function AccordionWaterfall(props: AccordionWaterfallProps) {
       forceState={isOpen ? 'open' : 'closed'}
       onToggle={toggleAccordion}
     >
-      {isOpen &&
-        children.map((child) => (
-          <AccordionWaterfall
-            {...props}
-            key={child.id}
-            isOpen={maxLevelOpen > level}
-            level={level + 1}
-            item={child}
-          />
-        ))}
+      {isOpen && (
+        <>
+          {children}
+          {isShowMoreButtonVisible && (
+            <EuiButton onClick={onShowMoreClick}>show more</EuiButton>
+          )}
+        </>
+      )}
     </StyledAccordion>
   );
 }
@@ -232,3 +234,5 @@ function ToggleAccordionButton({
     </div>
   );
 }
+
+export const AccordionWaterfall = React.memo(AccordionWaterfallComponent);

@@ -214,7 +214,7 @@ function NameLabel({ item }: { item: IWaterfallSpanOrTransaction }) {
   }
 }
 
-export function WaterfallItem({
+function WaterfallItemComponent({
   timelineMargins,
   totalDuration,
   item,
@@ -292,6 +292,7 @@ export function WaterfallItem({
           <PrefixIcon item={item} />
         </SpanActionToolTip>
         <HttpStatusCode item={item} />
+        <span>{item.id} - </span>
         <NameLabel item={item} />
 
         <Duration item={item} />
@@ -394,3 +395,17 @@ function getItemBarStyle(
 
   return itemBarStyle;
 }
+
+function areEqual(
+  prevProps: IWaterfallItemProps,
+  nextProps: IWaterfallItemProps
+) {
+  /*
+  return true if passing nextProps to render would return
+  the same result as passing prevProps to render,
+  otherwise return false
+  */
+  return prevProps.item.id === nextProps.item.id;
+}
+
+export const WaterfallItem = React.memo(WaterfallItemComponent, areEqual);
