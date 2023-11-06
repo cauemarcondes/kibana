@@ -9,6 +9,7 @@ import { KibanaContextProvider } from '@kbn/kibana-react-plugin/public';
 import { ObservabilityAIAssistantProvider } from '@kbn/observability-ai-assistant-plugin/public';
 import React, { ReactChild, useMemo } from 'react';
 import { CoreSetup, CoreStart } from '@kbn/core/public';
+import { Storage } from '@kbn/kibana-utils-plugin/public';
 import { ProfilingDependenciesContextProvider } from '../components/contexts/profiling_dependencies/profiling_dependencies_context';
 import { ProfilingPluginPublicSetupDeps, ProfilingPluginPublicStartDeps } from '../types';
 import { Services } from '../services';
@@ -28,6 +29,8 @@ interface Props {
   children: ReactChild;
 }
 
+const storage = new Storage(localStorage);
+
 export function ProfilingEmbeddableProvider({ deps, children }: Props) {
   const profilingDependencies = useMemo(
     () => ({
@@ -45,7 +48,7 @@ export function ProfilingEmbeddableProvider({ deps, children }: Props) {
   );
 
   return (
-    <KibanaContextProvider services={{ ...deps.coreStart, ...deps.pluginsStart }}>
+    <KibanaContextProvider services={{ ...deps.coreStart, ...deps.pluginsStart, storage }}>
       <ProfilingDependenciesContextProvider value={profilingDependencies}>
         <ObservabilityAIAssistantProvider value={deps.pluginsStart.observabilityAIAssistant}>
           {children}

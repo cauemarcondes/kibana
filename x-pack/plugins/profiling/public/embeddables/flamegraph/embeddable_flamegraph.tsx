@@ -6,11 +6,9 @@
  */
 import { Embeddable, EmbeddableOutput, IContainer } from '@kbn/embeddable-plugin/public';
 import { EMBEDDABLE_FLAMEGRAPH } from '@kbn/observability-shared-plugin/public';
-import { createFlameGraph } from '@kbn/profiling-utils';
 import React from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
-import { FlameGraph } from '../../components/flamegraph';
-import { AsyncEmbeddableComponent } from '../async_embeddable_component';
+import { FlamegraphEmbeddable } from '.';
 import {
   ProfilingEmbeddableProvider,
   ProfilingEmbeddablesDependencies,
@@ -34,18 +32,19 @@ export class EmbeddableFlamegraph extends Embeddable<
 
   render(domNode: HTMLElement) {
     this._domNode = domNode;
-    const { data, isLoading } = this.input;
-    const flamegraph = !isLoading && data ? createFlameGraph(data) : undefined;
+    const { timeFrom, timeTo, kuery, isLoading } = this.input;
+    const i18nCore = this.deps.coreStart.i18n;
 
     render(
       <ProfilingEmbeddableProvider deps={this.deps}>
-        <AsyncEmbeddableComponent isLoading={isLoading}>
-          <>
-            {flamegraph && (
-              <FlameGraph primaryFlamegraph={flamegraph} id="embddable_profiling" isEmbedded />
-            )}
-          </>
-        </AsyncEmbeddableComponent>
+        <i18nCore.Context>
+          <FlamegraphEmbeddable
+            timeFrom={timeFrom}
+            timeTo={timeTo}
+            kuery={kuery}
+            isLoading={isLoading}
+          />
+        </i18nCore.Context>
       </ProfilingEmbeddableProvider>,
       domNode
     );

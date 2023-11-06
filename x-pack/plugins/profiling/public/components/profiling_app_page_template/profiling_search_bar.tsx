@@ -12,16 +12,7 @@ import React, { useEffect, useState } from 'react';
 import { INDEX_EVENTS } from '../../../common';
 import { useProfilingDependencies } from '../contexts/profiling_dependencies/use_profiling_dependencies';
 
-export function ProfilingSearchBar({
-  kuery,
-  rangeFrom,
-  rangeTo,
-  onQuerySubmit,
-  onRefresh,
-  onRefreshClick,
-  showSubmitButton = true,
-  dataTestSubj = 'profilingUnifiedSearchBar',
-}: {
+interface Props {
   kuery: string;
   rangeFrom: string;
   rangeTo: string;
@@ -36,7 +27,20 @@ export function ProfilingSearchBar({
   onRefreshClick: () => void;
   showSubmitButton?: boolean;
   dataTestSubj?: string;
-}) {
+  showDatePicker?: boolean;
+}
+
+export function ProfilingSearchBar({
+  kuery,
+  rangeFrom,
+  rangeTo,
+  onQuerySubmit,
+  onRefresh,
+  onRefreshClick,
+  showSubmitButton = true,
+  dataTestSubj = 'profilingUnifiedSearchBar',
+  showDatePicker = true,
+}: Props) {
   const {
     start: { dataViews },
   } = useProfilingDependencies();
@@ -67,7 +71,7 @@ export function ProfilingSearchBar({
         onQuerySubmit({ dateRange, query });
       }}
       showQueryInput
-      showDatePicker
+      showDatePicker={showDatePicker}
       showFilterBar={false}
       showSaveQuery={false}
       submitButtonStyle={!showSubmitButton ? 'iconOnly' : 'auto'}

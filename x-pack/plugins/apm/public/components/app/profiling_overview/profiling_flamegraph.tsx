@@ -4,7 +4,7 @@
  * 2.0; you may not use this file except in compliance with the Elastic License
  * 2.0.
  */
-
+import { v4 as uuidv4 } from 'uuid';
 import {
   EuiEmptyPrompt,
   EuiFlexGroup,
@@ -15,7 +15,7 @@ import {
 import { i18n } from '@kbn/i18n';
 import { EmbeddableFlamegraph } from '@kbn/observability-shared-plugin/public';
 import { isEmpty } from 'lodash';
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { ApmDataSourceWithSummary } from '../../../../common/data_source';
 import { ApmDocumentType } from '../../../../common/document_type';
 import { HOST_NAME } from '../../../../common/es_fields/apm';
@@ -110,9 +110,11 @@ export function ProfilingFlamegraph({
         />
       ) : (
         <EmbeddableFlamegraph
-          data={data?.flamegraph}
           isLoading={isPending(status)}
           height="60vh"
+          timeFrom={start}
+          timeTo={end}
+          kuery={hostNamesKueryFormat}
         />
       )}
     </>
