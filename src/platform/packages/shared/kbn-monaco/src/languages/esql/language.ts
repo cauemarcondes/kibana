@@ -155,6 +155,7 @@ export const ESQLLang: CustomLangModuleType<ESQLDependencies, MonacoMessage> = {
         const fullText = model.getValue();
         const offset = monacoPositionToOffset(fullText, position);
         const suggestions = await suggest(fullText, offset, deps);
+        console.log('### caue ~ suggestions:', suggestions);
 
         const suggestionsWithCustomCommands = filterSuggestionsWithCustomCommands(suggestions);
         if (suggestionsWithCustomCommands.length) {
