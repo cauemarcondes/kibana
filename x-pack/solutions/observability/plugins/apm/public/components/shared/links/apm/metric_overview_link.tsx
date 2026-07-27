@@ -8,6 +8,8 @@
 import React from 'react';
 import type { TypeOf } from '@kbn/typed-react-router-config';
 import { EuiLink } from '@elastic/eui';
+import { EBT_CLICK_ACTIONS, getEbtProps } from '@kbn/ebt-click';
+import { APM_EBT_ELEMENTS } from '../../../app/ebt_constants';
 import type { ApmRoutes } from '../../../routing/apm_route_config';
 import type { APMQueryParams } from '../url_helpers';
 import { useAPMHref } from './apm_link_hooks';
@@ -42,5 +44,15 @@ export function MetricOverviewLink({ serviceName, query, ...rest }: Props) {
     },
     query,
   });
-  return <EuiLink data-test-subj="apmMetricsOverviewLink" href={metricsOverviewLink} {...rest} />;
+  return (
+    <EuiLink
+      data-test-subj="apmMetricsOverviewLink"
+      href={metricsOverviewLink}
+      {...getEbtProps({
+        action: EBT_CLICK_ACTIONS.VIEW_METRICS,
+        element: APM_EBT_ELEMENTS.METRIC_OVERVIEW_LINK,
+      })}
+      {...rest}
+    />
+  );
 }

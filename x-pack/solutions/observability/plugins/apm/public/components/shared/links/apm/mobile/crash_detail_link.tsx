@@ -8,8 +8,10 @@
 import React from 'react';
 import type { TypeOf } from '@kbn/typed-react-router-config';
 import { EuiLink } from '@elastic/eui';
+import { getEbtProps } from '@kbn/ebt-click';
 import type { mobileServiceDetailRoute } from '../../../../routing/mobile_service_detail';
 import { useApmRouter } from '../../../../../hooks/use_apm_router';
+import { APM_EBT_ACTIONS, APM_EBT_ELEMENTS } from '../../../../app/ebt_constants';
 
 interface Props {
   children: React.ReactNode;
@@ -35,7 +37,17 @@ function CrashDetailLink({ serviceName, groupId, query, ...rest }: Props) {
     }
   );
 
-  return <EuiLink data-test-subj="apmMobileCrashDetailsLink" href={crashDetailsLink} {...rest} />;
+  return (
+    <EuiLink
+      data-test-subj="apmMobileCrashDetailsLink"
+      href={crashDetailsLink}
+      {...getEbtProps({
+        action: APM_EBT_ACTIONS.VIEW_CRASH,
+        element: APM_EBT_ELEMENTS.MOBILE_CRASH_DETAIL_LINK,
+      })}
+      {...rest}
+    />
+  );
 }
 
 export { CrashDetailLink };

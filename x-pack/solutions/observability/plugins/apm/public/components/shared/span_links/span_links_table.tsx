@@ -21,9 +21,11 @@ import {
 } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
 import React, { useState } from 'react';
+import { EBT_CLICK_ACTIONS, getEbtProps } from '@kbn/ebt-click';
 import { getSpanIcon } from '@kbn/apm-ui-shared';
 import { TRANSACTION_DETAILS_BY_TRACE_ID_LOCATOR } from '@kbn/deeplinks-observability/locators';
 import type { SpanLinkDetails } from '@kbn/apm-types';
+import { APM_EBT_ELEMENTS } from '../../app/ebt_constants';
 import { useApmPluginContext } from '../../../context/apm_plugin/use_apm_plugin_context';
 import { asDuration } from '../../../../common/utils/formatters';
 import { useAnyOfApmParams } from '../../../hooks/use_apm_params';
@@ -129,6 +131,10 @@ export function SpanLinksTable({ items }: Props) {
               <EuiFlexItem>
                 <EuiLink
                   data-test-subj="apmColumnsLink"
+                  {...getEbtProps({
+                    action: EBT_CLICK_ACTIONS.VIEW_SPAN,
+                    element: APM_EBT_ELEMENTS.SPAN_LINKS_TABLE_SPAN_LINK,
+                  })}
                   href={
                     details.transactionId
                       ? router.link('/link-to/transaction/{transactionId}', {
@@ -194,6 +200,10 @@ export function SpanLinksTable({ items }: Props) {
                   onClick={() => {
                     setIdActionMenuOpen(id);
                   }}
+                  {...getEbtProps({
+                    action: EBT_CLICK_ACTIONS.OPEN_ACTIONS_MENU,
+                    element: APM_EBT_ELEMENTS.SPAN_LINKS_TABLE_ROW_ACTIONS,
+                  })}
                 />
               </EuiToolTip>
             }
@@ -209,6 +219,10 @@ export function SpanLinksTable({ items }: Props) {
                     data-test-subj="apmColumnsGoToTraceLink"
                     href={router.link('/link-to/transaction/{transactionId}', {
                       path: { transactionId: details.transactionId },
+                    })}
+                    {...getEbtProps({
+                      action: EBT_CLICK_ACTIONS.VIEW_TRACE,
+                      element: APM_EBT_ELEMENTS.SPAN_LINKS_TABLE_GO_TO_TRACE,
                     })}
                   >
                     {i18n.translate('xpack.apm.spanLinks.table.actions.goToTraceDetails', {
@@ -231,6 +245,11 @@ export function SpanLinksTable({ items }: Props) {
                         setIdActionMenuOpen(undefined);
                       }}
                       flush="both"
+                      {...getEbtProps({
+                        action: EBT_CLICK_ACTIONS.COPY,
+                        element: APM_EBT_ELEMENTS.SPAN_LINKS_TABLE_COPY_PARENT_TRACE_ID,
+                        detail: 'traceId',
+                      })}
                     >
                       {i18n.translate('xpack.apm.spanLinks.table.actions.copyParentTraceId', {
                         defaultMessage: 'Copy parent trace id',
@@ -246,6 +265,10 @@ export function SpanLinksTable({ items }: Props) {
                     href={router.link('/link-to/transaction/{transactionId}', {
                       path: { transactionId: details.transactionId },
                       query: { waterfallItemId: spanId },
+                    })}
+                    {...getEbtProps({
+                      action: EBT_CLICK_ACTIONS.VIEW_SPAN,
+                      element: APM_EBT_ELEMENTS.SPAN_LINKS_TABLE_GO_TO_SPAN_DETAILS,
                     })}
                   >
                     {i18n.translate('xpack.apm.spanLinks.table.actions.goToSpanDetails', {
@@ -270,6 +293,11 @@ export function SpanLinksTable({ items }: Props) {
                         setIdActionMenuOpen(undefined);
                       }}
                       flush="both"
+                      {...getEbtProps({
+                        action: EBT_CLICK_ACTIONS.COPY,
+                        element: APM_EBT_ELEMENTS.SPAN_LINKS_TABLE_COPY_SPAN_ID,
+                        detail: 'spanId',
+                      })}
                     >
                       {i18n.translate('xpack.apm.spanLinks.table.actions.copySpanId', {
                         defaultMessage: 'Copy span id',

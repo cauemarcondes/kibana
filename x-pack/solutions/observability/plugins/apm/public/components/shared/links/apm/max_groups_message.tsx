@@ -9,6 +9,8 @@ import { FormattedMessage } from '@kbn/i18n-react';
 import React from 'react';
 import { EuiLink } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
+import { EBT_CLICK_ACTIONS, getEbtProps } from '@kbn/ebt-click';
+import { APM_EBT_ELEMENTS } from '../../../app/ebt_constants';
 
 export const OTHER_SERVICE_NAME = '_other';
 
@@ -25,6 +27,10 @@ export function MaxGroupsMessage() {
               'https://www.elastic.co/guide/en/kibana/8.7/troubleshooting.html#troubleshooting-too-many-transactions'
             }
             target="_blank"
+            {...getEbtProps({
+              action: EBT_CLICK_ACTIONS.VIEW_DOCS,
+              element: APM_EBT_ELEMENTS.MAX_GROUPS_DOCS_LINK,
+            })}
           >
             {i18n.translate('xpack.apm.tooltip.link.apmServerDocs', {
               defaultMessage: 'docs',

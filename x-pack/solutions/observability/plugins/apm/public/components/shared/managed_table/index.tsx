@@ -14,6 +14,7 @@ import {
   RIGHT_ALIGNMENT,
   type EuiBasicTableColumn,
 } from '@elastic/eui';
+import { EBT_CLICK_ACTIONS, getEbtProps } from '@kbn/ebt-click';
 import { isEmpty, merge, orderBy } from 'lodash';
 import type { ReactNode } from 'react';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -22,6 +23,7 @@ import { useHistory } from 'react-router-dom';
 import { useKibana } from '@kbn/kibana-react-plugin/public';
 import { ProgressiveLoadingQuality, apmProgressiveLoading } from '@kbn/observability-plugin/common';
 import type { EuiTableRowCellProps, EuiTableActionsColumnType } from '@elastic/eui';
+import { APM_EBT_ELEMENTS } from '../../app/ebt_constants';
 import { useLegacyUrlParams } from '../../../context/url_params_context/use_url_params';
 import { fromQuery, toQuery } from '../links/url_helpers';
 import {
@@ -96,7 +98,6 @@ function ActionsCell<T extends object>({
       actions={resolvedActions}
       dataTestSubjPrefix="apmManagedTableActionsMenu"
       button={
-        // eslint-disable-next-line @elastic/eui/tooltip-button-icon-wrap -- ActionsContextMenu uses React.cloneElement to inject onClick on the button; wrapping with EuiToolTip would put onClick on the tooltip wrapper and break the popover trigger
         <EuiButtonIcon
           data-test-subj="apmManagedTableActionsCellButton"
           aria-label={i18n.translate('xpack.apm.managedTable.actionsAriaLabel', {
@@ -105,6 +106,10 @@ function ActionsCell<T extends object>({
           iconType="boxesVertical"
           color="text"
           isDisabled={disabled}
+          {...getEbtProps({
+            action: EBT_CLICK_ACTIONS.OPEN_ACTIONS_MENU,
+            element: APM_EBT_ELEMENTS.MANAGED_TABLE_ROW_ACTIONS,
+          })}
         />
       }
     />

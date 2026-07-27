@@ -8,6 +8,8 @@
 import React from 'react';
 import type { TypeOf } from '@kbn/typed-react-router-config';
 import { EuiLink } from '@elastic/eui';
+import { EBT_CLICK_ACTIONS, getEbtProps } from '@kbn/ebt-click';
+import { APM_EBT_ELEMENTS } from '../../../app/ebt_constants';
 import { useApmRouter } from '../../../../hooks/use_apm_router';
 import type { APMLinkExtendProps } from './apm_link_hooks';
 import type { ApmRoutes } from '../../../routing/apm_route_config';
@@ -27,7 +29,17 @@ function ErrorDetailLink({ serviceName, errorGroupId, query, ...rest }: Props) {
     },
     query,
   });
-  return <EuiLink data-test-subj="apmErrorDetailsLink" href={errorDetailsLink} {...rest} />;
+  return (
+    <EuiLink
+      data-test-subj="apmErrorDetailsLink"
+      href={errorDetailsLink}
+      {...getEbtProps({
+        action: EBT_CLICK_ACTIONS.VIEW_ERROR,
+        element: APM_EBT_ELEMENTS.ERROR_DETAIL_LINK,
+      })}
+      {...rest}
+    />
+  );
 }
 
 export { ErrorDetailLink };

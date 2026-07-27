@@ -8,7 +8,9 @@
 import { EuiButton, EuiButtonEmpty, EuiLink } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
 import React from 'react';
+import { getEbtProps } from '@kbn/ebt-click';
 import { useApmPluginContext } from '../../../context/apm_plugin/use_apm_plugin_context';
+import { APM_EBT_ACTIONS, APM_EBT_ELEMENTS } from '../../app/ebt_constants';
 
 const SETUP_INSTRUCTIONS_LABEL = i18n.translate('xpack.apm.setupInstructionsButtonLabel', {
   defaultMessage: 'Setup instructions',
@@ -33,6 +35,10 @@ export function SetupInstructionsLink({ buttonFill = false }: { buttonFill?: boo
           color="primary"
           fill={buttonFill}
           iconType="question"
+          {...getEbtProps({
+            action: APM_EBT_ACTIONS.VIEW_SETUP_INSTRUCTIONS,
+            element: APM_EBT_ELEMENTS.SETUP_INSTRUCTIONS_BUTTON,
+          })}
         >
           {SETUP_INSTRUCTIONS_LABEL}
         </EuiButton>
@@ -42,6 +48,10 @@ export function SetupInstructionsLink({ buttonFill = false }: { buttonFill?: boo
           size="s"
           color="primary"
           iconType="indexOpen"
+          {...getEbtProps({
+            action: APM_EBT_ACTIONS.ADD_DATA,
+            element: APM_EBT_ELEMENTS.ADD_DATA_BUTTON,
+          })}
         >
           {ADD_DATA_LABEL}
         </EuiButtonEmpty>

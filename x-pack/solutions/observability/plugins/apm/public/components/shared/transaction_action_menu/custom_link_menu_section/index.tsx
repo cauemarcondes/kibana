@@ -16,12 +16,14 @@ import {
 import { i18n } from '@kbn/i18n';
 import { isEmpty } from 'lodash';
 import React, { useMemo, useState } from 'react';
+import { getEbtProps } from '@kbn/ebt-click';
 import {
   ActionMenuDivider,
   Section,
   SectionSubtitle,
   SectionTitle,
 } from '@kbn/observability-shared-plugin/public';
+import { APM_EBT_ACTIONS, APM_EBT_ELEMENTS } from '../../../app/ebt_constants';
 import { NO_PERMISSION_LABEL } from '../../../../../common/custom_link';
 import type { CustomLink, Filter } from '../../../../../common/custom_link/custom_link_types';
 import type { Transaction } from '../../../../../typings/es_schemas/ui/transaction';
@@ -149,6 +151,10 @@ function BottomSection({
               iconType="plusCircle"
               size="xs"
               onClick={onClickCreate}
+              {...getEbtProps({
+                action: APM_EBT_ACTIONS.CREATE_CUSTOM_LINK,
+                element: APM_EBT_ELEMENTS.CUSTOM_LINKS_EMPTY_STATE_CREATE_BUTTON,
+              })}
             >
               {i18n.translate('xpack.apm.customLink.buttom.create', {
                 defaultMessage: 'Create custom link',
@@ -169,6 +175,10 @@ function BottomSection({
             data-test-subj="apmBottomSectionButton"
             iconType={showAllLinks ? 'chevronSingleUp' : 'chevronSingleDown'}
             onClick={toggleShowAll}
+            {...getEbtProps({
+              action: APM_EBT_ACTIONS.TOGGLE_CUSTOM_LINKS_VISIBILITY,
+              element: APM_EBT_ELEMENTS.CUSTOM_LINKS_SHOW_MORE_BUTTON,
+            })}
           >
             <EuiText size="s">
               {showAllLinks

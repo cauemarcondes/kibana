@@ -32,12 +32,10 @@ function FullTraceButton({
         defaultMessage: 'View full trace',
       })}
       data-test-subj="apmFullTraceButtonViewFullTraceButton"
-      {...(onClick
-        ? getEbtProps({
-            action: TRACE_WATERFALL_EBT_CLICK_ACTIONS.VIEW_FULL_TRACE,
-            element: TRACE_WATERFALL_EBT_ELEMENTS.WATERFALL_VIEW_FULL_TRACE,
-          })
-        : {})}
+      {...getEbtProps({
+        action: TRACE_WATERFALL_EBT_CLICK_ACTIONS.VIEW_FULL_TRACE,
+        element: TRACE_WATERFALL_EBT_ELEMENTS.WATERFALL_VIEW_FULL_TRACE,
+      })}
       iconType="chartWaterfall"
       isLoading={isLoading}
       disabled={isDisabled}

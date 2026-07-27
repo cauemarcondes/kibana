@@ -8,6 +8,8 @@
 import { EuiLink } from '@elastic/eui';
 import React from 'react';
 import type { TypeOf } from '@kbn/typed-react-router-config/src/types';
+import { EBT_CLICK_ACTIONS, getEbtProps } from '@kbn/ebt-click';
+import { APM_EBT_ELEMENTS } from '../../../app/ebt_constants';
 import type { LatencyAggregationType } from '../../../../../common/latency_aggregation_types';
 import { useApmRouter } from '../../../../hooks/use_apm_router';
 import type { APMLinkExtendProps } from './apm_link_hooks';
@@ -38,5 +40,15 @@ export function TransactionOverviewLink({
     },
   });
 
-  return <EuiLink data-test-subj="apmTransactionOverviewLinkLink" href={href} {...rest} />;
+  return (
+    <EuiLink
+      data-test-subj="apmTransactionOverviewLinkLink"
+      href={href}
+      {...getEbtProps({
+        action: EBT_CLICK_ACTIONS.VIEW_TRANSACTIONS,
+        element: APM_EBT_ELEMENTS.TRANSACTION_OVERVIEW_LINK,
+      })}
+      {...rest}
+    />
+  );
 }

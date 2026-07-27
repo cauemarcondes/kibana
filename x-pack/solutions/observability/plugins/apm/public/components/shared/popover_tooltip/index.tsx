@@ -8,17 +8,21 @@
 import { EuiButtonIcon, EuiPopover, EuiToolTip } from '@elastic/eui';
 import React, { useState } from 'react';
 import { i18n } from '@kbn/i18n';
+import { EBT_CLICK_ACTIONS, getEbtProps } from '@kbn/ebt-click';
+import { APM_EBT_ELEMENTS } from '../../app/ebt_constants';
 
 interface PopoverTooltipProps {
   ariaLabel?: string;
   iconType?: string;
   children: React.ReactNode;
+  ebtElement?: string;
 }
 
 export function PopoverTooltip({
   ariaLabel,
   iconType = 'question',
   children,
+  ebtElement,
 }: PopoverTooltipProps) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
@@ -46,6 +50,10 @@ export function PopoverTooltip({
             color="primary"
             iconType={iconType}
             style={{ height: 'auto' }}
+            {...getEbtProps({
+              action: EBT_CLICK_ACTIONS.VIEW_INFO,
+              element: ebtElement ?? APM_EBT_ELEMENTS.POPOVER_TOOLTIP_BUTTON,
+            })}
           />
         </EuiToolTip>
       }

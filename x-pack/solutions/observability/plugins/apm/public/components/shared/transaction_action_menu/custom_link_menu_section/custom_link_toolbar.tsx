@@ -15,7 +15,9 @@ import {
   EuiLink,
 } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
+import { getEbtProps } from '@kbn/ebt-click';
 import { useApmRouter } from '../../../../hooks/use_apm_router';
+import { APM_EBT_ACTIONS, APM_EBT_ELEMENTS } from '../../../app/ebt_constants';
 import { NO_PERMISSION_LABEL } from '../../../../../common/custom_link';
 import { useApmPluginContext } from '../../../../context/apm_plugin/use_apm_plugin_context';
 
@@ -44,6 +46,10 @@ export function CustomLinkToolbar({
               <EuiLink
                 data-test-subj="apmCustomLinksSettingsPage"
                 href={link('/settings/custom-links')}
+                {...getEbtProps({
+                  action: APM_EBT_ACTIONS.VIEW_CUSTOM_LINKS_SETTINGS,
+                  element: APM_EBT_ELEMENTS.CUSTOM_LINKS_TOOLBAR_SETTINGS_LINK,
+                })}
               >
                 <EuiIcon
                   type="gear"
@@ -68,6 +74,10 @@ export function CustomLinkToolbar({
                   iconType="plusCircle"
                   size="xs"
                   onClick={onClickCreate}
+                  {...getEbtProps({
+                    action: APM_EBT_ACTIONS.CREATE_CUSTOM_LINK,
+                    element: APM_EBT_ELEMENTS.CUSTOM_LINKS_TOOLBAR_CREATE_BUTTON,
+                  })}
                 >
                   {i18n.translate('xpack.apm.customLink.buttom.create.title', {
                     defaultMessage: 'Create',

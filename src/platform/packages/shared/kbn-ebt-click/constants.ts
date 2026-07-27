@@ -50,6 +50,28 @@ export const EBT_CLICK_ACTIONS = {
   VIEW_SLOS: 'viewSlos',
   /** User intends to view anomaly details for an entity. */
   VIEW_ANOMALIES: 'viewAnomalies',
+  /** User intends to view documentation. */
+  VIEW_DOCS: 'viewDocs',
+  /** User intends to view an informational popover or tooltip. */
+  VIEW_INFO: 'viewInfo',
+  /** User opens an actions/context menu. */
+  OPEN_ACTIONS_MENU: 'openActionsMenu',
+  /** User navigates to an error list view. */
+  VIEW_ERRORS: 'viewErrors',
+  /** User navigates to a metrics page. */
+  VIEW_METRICS: 'viewMetrics',
+  /** User navigates to a transactions list. */
+  VIEW_TRANSACTIONS: 'viewTransactions',
+  /** User navigates to a trace detail page. */
+  VIEW_TRACE: 'viewTrace',
+  /** User dismisses an informational callout banner. */
+  DISMISS_CALLOUT: 'dismissCallout',
+  /** User adds a filter from an inline key-value control. */
+  FILTER_BY_VALUE: 'filterByValue',
+  /** User copies text (e.g. IDs, URLs) to clipboard. */
+  COPY: 'copy',
+  /** User begins a free trial from a license gate. */
+  START_TRIAL: 'startTrial',
 } as const;
 
 /**

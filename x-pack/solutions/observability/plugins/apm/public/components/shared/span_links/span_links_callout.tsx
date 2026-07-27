@@ -8,6 +8,8 @@ import { EuiButton, EuiCallOut } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
 import React from 'react';
 import { FormattedMessage } from '@kbn/i18n-react';
+import { EBT_CLICK_ACTIONS, getEbtProps } from '@kbn/ebt-click';
+import { APM_EBT_ELEMENTS } from '../../app/ebt_constants';
 
 interface Props {
   dismissCallout: () => void;
@@ -32,6 +34,10 @@ export function SpanLinksCallout({ dismissCallout }: Props) {
         onClick={() => {
           dismissCallout();
         }}
+        {...getEbtProps({
+          action: EBT_CLICK_ACTIONS.DISMISS_CALLOUT,
+          element: APM_EBT_ELEMENTS.SPAN_LINKS_CALLOUT_DISMISS_BUTTON,
+        })}
       >
         {i18n.translate('xpack.apm.spanLinks.callout.dimissButton', {
           defaultMessage: 'Dismiss',

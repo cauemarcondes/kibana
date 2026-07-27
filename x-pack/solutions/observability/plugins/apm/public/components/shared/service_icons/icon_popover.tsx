@@ -14,6 +14,8 @@ import {
   useGeneratedHtmlId,
 } from '@elastic/eui';
 import React from 'react';
+import { EBT_CLICK_ACTIONS, getEbtProps } from '@kbn/ebt-click';
+import { APM_EBT_ELEMENTS } from '../../app/ebt_constants';
 import type { PopoverItem } from '.';
 import { FETCH_STATUS } from '../../../hooks/use_fetcher';
 
@@ -59,6 +61,10 @@ export function IconPopover({
             className="serviceIcon_button"
             data-test-subj={`popover_${title}`}
             size="m"
+            {...getEbtProps({
+              action: EBT_CLICK_ACTIONS.VIEW_INFO,
+              element: APM_EBT_ELEMENTS.SERVICE_ICON_POPOVER,
+            })}
           />
         </EuiToolTip>
       }

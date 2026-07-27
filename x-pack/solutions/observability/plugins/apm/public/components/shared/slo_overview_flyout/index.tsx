@@ -35,6 +35,7 @@ import {
 } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
 import { FormattedMessage } from '@kbn/i18n-react';
+import { EBT_CLICK_ACTIONS, getEbtProps } from '@kbn/ebt-click';
 import numeral from '@elastic/numeral';
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import useDebounce from 'react-use/lib/useDebounce';
@@ -45,6 +46,7 @@ import { AgentIcon } from '@kbn/custom-icons';
 import type { SloTabId } from '@kbn/deeplinks-observability';
 import { ALERTS_TAB_ID } from '@kbn/deeplinks-observability';
 import type { AgentName } from '@kbn/elastic-agent-utils';
+import { APM_EBT_ACTIONS, APM_EBT_ELEMENTS } from '../../app/ebt_constants';
 import type { ApmPluginStartDeps, ApmServices } from '../../../plugin';
 import { useApmRouter } from '../../../hooks/use_apm_router';
 import { useAnyOfApmParams } from '../../../hooks/use_apm_params';
@@ -344,11 +346,14 @@ export function SloOverviewFlyout({ serviceName, agentName, onClose }: Props) {
           return (
             <EuiButtonIcon
               data-test-subj="apmSloExpandButton"
-              data-event-element="sloExpandTable"
               iconType={expanded ? 'minimize' : 'maximize'}
               color="primary"
               size="xs"
               onClick={() => handleSloToggle(sloItem)}
+              {...getEbtProps({
+                action: APM_EBT_ACTIONS.TOGGLE_SLO_DETAILS,
+                element: APM_EBT_ELEMENTS.SLO_OVERVIEW_TABLE_EXPAND_BUTTON,
+              })}
               aria-label={
                 expanded
                   ? i18n.translate('xpack.apm.sloOverviewFlyout.collapseButton.ariaLabel', {
@@ -496,7 +501,10 @@ export function SloOverviewFlyout({ serviceName, agentName, onClose }: Props) {
               href={sloAppUrl}
               target="_blank"
               data-test-subj="sloOverviewFlyoutSloLink"
-              data-event-element="linkOpenInSlosApp"
+              {...getEbtProps({
+                action: EBT_CLICK_ACTIONS.VIEW_SLOS,
+                element: APM_EBT_ELEMENTS.SLO_OVERVIEW_FLYOUT_SLO_LINK,
+              })}
             >
               {flyoutTitle}
             </EuiLink>
@@ -704,6 +712,10 @@ export function SloOverviewFlyout({ serviceName, agentName, onClose }: Props) {
                     data-test-subj="sloOverviewFlyoutCreateSloButton"
                     onClick={openCreateSloFlyout}
                     size="s"
+                    {...getEbtProps({
+                      action: APM_EBT_ACTIONS.CREATE_SLO,
+                      element: APM_EBT_ELEMENTS.SLO_OVERVIEW_FLYOUT_CREATE_BUTTON,
+                    })}
                   >
                     {i18n.translate('xpack.apm.sloOverviewFlyout.emptyState.createSlo', {
                       defaultMessage: 'Create SLO',

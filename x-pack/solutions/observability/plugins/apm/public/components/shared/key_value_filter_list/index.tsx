@@ -21,6 +21,8 @@ import React, { Fragment } from 'react';
 import styled from '@emotion/styled';
 import { isEmpty } from 'lodash';
 import { css } from '@emotion/react';
+import { EBT_CLICK_ACTIONS, getEbtProps } from '@kbn/ebt-click';
+import { APM_EBT_ELEMENTS } from '../../app/ebt_constants';
 
 interface KeyValue {
   key: string;
@@ -125,6 +127,10 @@ export function KeyValueFilterList({
                             { defaultMessage: 'Filter by value' }
                           )}
                           data-test-subj={`filter_by_${key}`}
+                          {...getEbtProps({
+                            action: EBT_CLICK_ACTIONS.FILTER_BY_VALUE,
+                            element: APM_EBT_ELEMENTS.KEY_VALUE_FILTER_BUTTON,
+                          })}
                         />
                       </EuiToolTip>
                     )}

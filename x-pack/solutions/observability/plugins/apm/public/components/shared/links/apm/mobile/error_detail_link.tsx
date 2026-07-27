@@ -8,6 +8,8 @@
 import React from 'react';
 import type { TypeOf } from '@kbn/typed-react-router-config';
 import { EuiLink } from '@elastic/eui';
+import { EBT_CLICK_ACTIONS, getEbtProps } from '@kbn/ebt-click';
+import { APM_EBT_ELEMENTS } from '../../../../app/ebt_constants';
 import { useApmRouter } from '../../../../../hooks/use_apm_router';
 import type { mobileServiceDetailRoute } from '../../../../routing/mobile_service_detail';
 
@@ -35,7 +37,17 @@ function ErrorDetailLink({ serviceName, groupId, query, ...rest }: Props) {
     }
   );
 
-  return <EuiLink data-test-subj="apmMobileErrorDetailsLink" href={errorDetailsLink} {...rest} />;
+  return (
+    <EuiLink
+      data-test-subj="apmMobileErrorDetailsLink"
+      href={errorDetailsLink}
+      {...getEbtProps({
+        action: EBT_CLICK_ACTIONS.VIEW_ERROR,
+        element: APM_EBT_ELEMENTS.MOBILE_ERROR_DETAIL_LINK,
+      })}
+      {...rest}
+    />
+  );
 }
 
 export { ErrorDetailLink };

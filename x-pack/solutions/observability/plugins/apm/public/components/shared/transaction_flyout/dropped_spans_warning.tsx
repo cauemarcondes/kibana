@@ -8,6 +8,8 @@
 import { EuiCallOut, EuiHorizontalRule, EuiLink } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
 import React from 'react';
+import { EBT_CLICK_ACTIONS, getEbtProps } from '@kbn/ebt-click';
+import { APM_EBT_ELEMENTS } from '../../app/ebt_constants';
 import type { Transaction } from '../../../../typings/es_schemas/ui/transaction';
 import { useApmPluginContext } from '../../../context/apm_plugin/use_apm_plugin_context';
 
@@ -32,6 +34,10 @@ export function DroppedSpansWarning({ transactionDoc }: { transactionDoc: Transa
         <EuiLink
           data-test-subj="apmDroppedSpansWarningLearnMoreAboutDroppedSpansLink"
           href={docLinks.links.apm.droppedTransactionSpans}
+          {...getEbtProps({
+            action: EBT_CLICK_ACTIONS.VIEW_DOCS,
+            element: APM_EBT_ELEMENTS.DROPPED_SPANS_WARNING_DOCS_LINK,
+          })}
         >
           {i18n.translate(
             'xpack.apm.transactionDetails.transFlyout.callout.learnMoreAboutDroppedSpansLinkText',

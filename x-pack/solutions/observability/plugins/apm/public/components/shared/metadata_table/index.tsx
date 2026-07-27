@@ -18,8 +18,10 @@ import {
 import { i18n } from '@kbn/i18n';
 import { isEmpty } from 'lodash';
 import React, { useCallback } from 'react';
+import { EBT_CLICK_ACTIONS, getEbtProps } from '@kbn/ebt-click';
 import { useHistory, useLocation } from 'react-router-dom';
 import { EuiLoadingSpinner } from '@elastic/eui';
+import { APM_EBT_ELEMENTS } from '../../app/ebt_constants';
 import { useLegacyUrlParams } from '../../../context/url_params_context/use_url_params';
 import { HeightRetainer } from '../height_retainer';
 import { fromQuery, toQuery } from '../links/url_helpers';
@@ -77,6 +79,10 @@ export function MetadataTable({ sections, isLoading }: Props) {
             data-test-subj="apmMetadataTableHowToAddLabelsAndOtherDataLink"
             href={docLinks.links.apm.metaData}
             target="_blank"
+            {...getEbtProps({
+              action: EBT_CLICK_ACTIONS.VIEW_DOCS,
+              element: APM_EBT_ELEMENTS.METADATA_TABLE_HOW_TO_DOCS_LINK,
+            })}
           >
             <EuiIcon type="question" aria-hidden />{' '}
             {i18n.translate('xpack.apm.metadata.help', {

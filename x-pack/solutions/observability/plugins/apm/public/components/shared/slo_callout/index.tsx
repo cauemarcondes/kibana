@@ -18,7 +18,9 @@ import {
 import { i18n } from '@kbn/i18n';
 import React, { useCallback, useState } from 'react';
 import { useKibana } from '@kbn/kibana-react-plugin/public';
+import { EBT_CLICK_ACTIONS, getEbtProps } from '@kbn/ebt-click';
 import { METRIC_TYPE, useTrackMetric } from '@kbn/observability-shared-plugin/public';
+import { APM_EBT_ACTIONS, APM_EBT_ELEMENTS } from '../../app/ebt_constants';
 import type { ApmPluginStartDeps } from '../../../plugin';
 import { useApmPluginContext } from '../../../context/apm_plugin/use_apm_plugin_context';
 import { ENVIRONMENT_ALL } from '../../../../common/environment_filter_values';
@@ -113,6 +115,10 @@ export function SloCallout({ dismissCallout, serviceName, environment }: Props) 
                   data-test-subj="apmSloCalloutCreateSloButton"
                   size="s"
                   onClick={openCreateSloFlyout}
+                  {...getEbtProps({
+                    action: APM_EBT_ACTIONS.CREATE_SLO,
+                    element: APM_EBT_ELEMENTS.SLO_CALLOUT_CREATE_BUTTON,
+                  })}
                 >
                   {i18n.translate('xpack.apm.slo.callout.createButton', {
                     defaultMessage: 'Create SLO',
@@ -127,6 +133,10 @@ export function SloCallout({ dismissCallout, serviceName, environment }: Props) 
                   target="_blank"
                   iconType="external"
                   iconSide="right"
+                  {...getEbtProps({
+                    action: EBT_CLICK_ACTIONS.VIEW_DOCS,
+                    element: APM_EBT_ELEMENTS.SLO_CALLOUT_VIEW_DOCS_BUTTON,
+                  })}
                 >
                   {i18n.translate('xpack.apm.slo.callout.viewDocumentation', {
                     defaultMessage: 'View documentation',

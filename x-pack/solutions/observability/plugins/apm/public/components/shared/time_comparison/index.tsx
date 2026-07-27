@@ -10,6 +10,8 @@ import { i18n } from '@kbn/i18n';
 import React, { useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useUiTracker } from '@kbn/observability-shared-plugin/public';
+import { getEbtProps } from '@kbn/ebt-click';
+import { APM_EBT_ACTIONS, APM_EBT_ELEMENTS } from '../../app/ebt_constants';
 import { useShouldShowAnomalyUi } from '../../../hooks/use_should_show_anomaly_ui';
 import { useEnvironmentsContext } from '../../../context/environments_context/use_environments_context';
 import { useAnomalyDetectionJobsContext } from '../../../context/anomaly_detection_jobs/use_anomaly_detection_jobs_context';
@@ -96,6 +98,10 @@ export function TimeComparison({
       })}
       fullWidth={fullWidth ?? (isSmall || isMedium)}
       data-test-subj="comparisonSelect"
+      {...getEbtProps({
+        action: APM_EBT_ACTIONS.SET_TIME_COMPARISON,
+        element: APM_EBT_ELEMENTS.TIME_COMPARISON_SELECT,
+      })}
       disabled={comparisonEnabled === false}
       options={comparisonOptions}
       value={offset}

@@ -9,7 +9,9 @@ import type { EuiFlexGroupProps } from '@elastic/eui';
 import { EuiFlexGroup, EuiFlexItem, EuiLink } from '@elastic/eui';
 import React from 'react';
 import { i18n } from '@kbn/i18n';
+import { getEbtProps } from '@kbn/ebt-click';
 import { useProfilingPlugin } from '../../../../hooks/use_profiling_plugin';
+import { APM_EBT_ACTIONS, APM_EBT_ELEMENTS } from '../../../app/ebt_constants';
 
 interface Props {
   kuery: string;
@@ -35,6 +37,10 @@ export function ProfilingTopNFunctionsLink({
             kuery,
             rangeFrom,
             rangeTo,
+          })}
+          {...getEbtProps({
+            action: APM_EBT_ACTIONS.VIEW_TOP_FUNCTIONS,
+            element: APM_EBT_ELEMENTS.PROFILING_TOP_FUNCTIONS_LINK,
           })}
         >
           {i18n.translate('xpack.apm.profiling.topnFunctions.link', {

@@ -10,7 +10,9 @@ import { getEnvironmentLabel, type AnomalyThreshold } from '@kbn/apm-types';
 import { i18n } from '@kbn/i18n';
 import { ML_ANOMALY_SEVERITY } from '@kbn/ml-anomaly-utils/anomaly_severity';
 import React, { useCallback } from 'react';
+import { getEbtProps } from '@kbn/ebt-click';
 import { useHistory } from 'react-router-dom';
+import { APM_EBT_ACTIONS, APM_EBT_ELEMENTS } from '../../app/ebt_constants';
 import { useEnvironmentsContext } from '../../../context/environments_context/use_environments_context';
 import type { AnomalyThresholdDisabledReason } from '../../../hooks/use_anomaly_threshold';
 import { useAnomalyThreshold } from '../../../hooks/use_anomaly_threshold';
@@ -103,6 +105,10 @@ export function AnomalyThresholdSelect({
       data-test-subj="apmAnomalyThresholdSelect"
       compressed={compressed}
       fullWidth={fullWidth}
+      {...getEbtProps({
+        action: APM_EBT_ACTIONS.SET_ANOMALY_THRESHOLD,
+        element: APM_EBT_ELEMENTS.ANOMALY_THRESHOLD_SELECT,
+      })}
       aria-label={i18n.translate('xpack.apm.anomalyThresholdSelect.ariaLabel', {
         defaultMessage: 'Anomaly threshold selector',
       })}

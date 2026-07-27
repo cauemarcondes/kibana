@@ -8,7 +8,9 @@ import type { EuiSelectOption } from '@elastic/eui';
 import { EuiFlexGroup, EuiFlexItem, EuiLoadingSpinner, EuiSelect } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
 import React, { useMemo, useState } from 'react';
+import { getEbtProps } from '@kbn/ebt-click';
 import type { ProcessorEvent } from '@kbn/observability-plugin/common';
+import { APM_EBT_ACTIONS, APM_EBT_ELEMENTS } from '../../app/ebt_constants';
 import { useAnyOfApmParams } from '../../../hooks/use_apm_params';
 import { isPending, useFetcher } from '../../../hooks/use_fetcher';
 import { useTimeRange } from '../../../hooks/use_time_range';
@@ -134,6 +136,10 @@ export function SpanLinks({ spanLinksCount, traceId, spanId, processorEvent }: P
               onChange={(e) => {
                 setSelectedLinkType(e.target.value as LinkType);
               }}
+              {...getEbtProps({
+                action: APM_EBT_ACTIONS.SET_SPAN_LINK_TYPE,
+                element: APM_EBT_ELEMENTS.SPAN_LINKS_TYPE_SELECT,
+              })}
             />
           </EuiFlexItem>
         </EuiFlexGroup>

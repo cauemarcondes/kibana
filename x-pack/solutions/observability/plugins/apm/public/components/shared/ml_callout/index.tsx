@@ -8,6 +8,8 @@
 import { EuiButton, EuiCallOut, EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 import { i18n } from '@kbn/i18n';
 import React, { useState } from 'react';
+import { EBT_CLICK_ACTIONS, getEbtProps } from '@kbn/ebt-click';
+import { APM_EBT_ACTIONS, APM_EBT_ELEMENTS } from '../../app/ebt_constants';
 import { AnomalyDetectionSetupState } from '../../../../common/anomaly_detection/get_anomaly_detection_setup_state';
 import { useMlManageJobsHref } from '../../../hooks/use_ml_manage_jobs_href';
 import { useAPMHref } from '../links/apm/apm_link_hooks';
@@ -54,6 +56,10 @@ export function MLCallout({
         data-test-subj="apmGetLearnMoreLinkButton"
         color={color}
         href={apmGetLearnMoreHref}
+        {...getEbtProps({
+          action: EBT_CLICK_ACTIONS.VIEW_DOCS,
+          element: APM_EBT_ELEMENTS.ML_CALLOUT_LEARN_MORE,
+        })}
       >
         {i18n.translate('xpack.apm.mlCallout.learnMoreButton', {
           defaultMessage: `Learn more`,
@@ -81,6 +87,10 @@ export function MLCallout({
             onClick={() => {
               onCreateJobClick?.();
             }}
+            {...getEbtProps({
+              action: APM_EBT_ACTIONS.CREATE_ML_JOB,
+              element: APM_EBT_ELEMENTS.ML_CALLOUT_CREATE_JOB_BUTTON,
+            })}
           >
             {i18n.translate('xpack.apm.mlCallout.noJobsCalloutButtonText', {
               defaultMessage: 'Create ML Job',
@@ -114,6 +124,10 @@ export function MLCallout({
                 setLoading(false);
               });
             }}
+            {...getEbtProps({
+              action: APM_EBT_ACTIONS.UPGRADE_ML_JOBS,
+              element: APM_EBT_ELEMENTS.ML_CALLOUT_UPGRADE_JOBS_BUTTON,
+            })}
           >
             {i18n.translate('xpack.apm.mlCallout.updateAvailableCalloutButtonText', {
               defaultMessage: 'Update jobs',
@@ -137,7 +151,14 @@ export function MLCallout({
         icon: 'info',
         color: 'primary',
         primaryAction: (
-          <EuiButton data-test-subj="apmMLCalloutReviewJobsButton" href={mlManageJobsHref}>
+          <EuiButton
+            data-test-subj="apmMLCalloutReviewJobsButton"
+            href={mlManageJobsHref}
+            {...getEbtProps({
+              action: APM_EBT_ACTIONS.MANAGE_ML_JOBS,
+              element: APM_EBT_ELEMENTS.ML_CALLOUT_REVIEW_JOBS_BUTTON,
+            })}
+          >
             {i18n.translate('xpack.apm.settings.anomaly_detection.legacy_jobs.button', {
               defaultMessage: 'Review jobs',
             })}

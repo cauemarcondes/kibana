@@ -17,6 +17,8 @@ import {
 import { UI_SETTINGS } from '@kbn/data-plugin/common';
 import { i18n } from '@kbn/i18n';
 import React, { useEffect, useMemo } from 'react';
+import { getEbtProps } from '@kbn/ebt-click';
+import { APM_EBT_ACTIONS, APM_EBT_ELEMENTS } from '../../../app/ebt_constants';
 import { ApmDocumentType } from '../../../../../common/document_type';
 import type { Environment } from '../../../../../common/environment_rt';
 import { getTransactionType } from '../../../../context/apm_service/apm_service_context';
@@ -135,6 +137,10 @@ export function ServiceFlyoutQueryControls() {
                 )}
                 data-test-subj="serviceFlyoutTransactionTypeSelect"
                 disabled={isTransactionTypeDisabled}
+                {...getEbtProps({
+                  action: APM_EBT_ACTIONS.SET_TRANSACTION_TYPE,
+                  element: APM_EBT_ELEMENTS.SERVICE_FLYOUT_TRANSACTION_TYPE_SELECT,
+                })}
                 options={
                   isTransactionTypeDisabled
                     ? [

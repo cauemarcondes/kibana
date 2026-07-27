@@ -10,6 +10,8 @@ import { i18n } from '@kbn/i18n';
 import React from 'react';
 import { unit } from '@kbn/apm-common';
 import { TruncateWithTooltip } from '@kbn/apm-ui-shared';
+import { EBT_CLICK_ACTIONS, getEbtProps } from '@kbn/ebt-click';
+import { APM_EBT_ELEMENTS } from '../../../../app/ebt_constants';
 import { PopoverTooltip } from '../../../popover_tooltip';
 import type { APMLinkExtendProps } from '../apm_link_hooks';
 import { MaxGroupsMessage } from '../max_groups_message';
@@ -26,7 +28,17 @@ export function TransactionDetailLink({ transactionName, href, ...rest }: Props)
     return (
       <TruncateWithTooltip
         text={transactionName}
-        content={<EuiLink data-test-subj="apmTransactionDetailLinkLink" href={href} {...rest} />}
+        content={
+          <EuiLink
+            data-test-subj="apmTransactionDetailLinkLink"
+            href={href}
+            {...getEbtProps({
+              action: EBT_CLICK_ACTIONS.VIEW_SPAN,
+              element: APM_EBT_ELEMENTS.TRANSACTION_DETAIL_LINK,
+            })}
+            {...rest}
+          />
+        }
       />
     );
   }

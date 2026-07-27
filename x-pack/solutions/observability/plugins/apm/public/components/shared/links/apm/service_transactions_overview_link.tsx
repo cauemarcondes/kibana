@@ -7,6 +7,8 @@
 
 import { EuiLink } from '@elastic/eui';
 import React from 'react';
+import { EBT_CLICK_ACTIONS, getEbtProps } from '@kbn/ebt-click';
+import { APM_EBT_ELEMENTS } from '../../../app/ebt_constants';
 import type { APMQueryParams } from '../url_helpers';
 import type { APMLinkExtendProps } from './apm_link_hooks';
 import { useAPMHref } from './apm_link_hooks';
@@ -53,6 +55,14 @@ export function ServiceOrTransactionsOverviewLink({
     transactionType,
   });
   return (
-    <EuiLink data-test-subj="apmServiceOrTransactionsOverviewLinkLink" href={href} {...rest} />
+    <EuiLink
+      data-test-subj="apmServiceOrTransactionsOverviewLinkLink"
+      href={href}
+      {...getEbtProps({
+        action: EBT_CLICK_ACTIONS.VIEW_TRANSACTIONS,
+        element: APM_EBT_ELEMENTS.SERVICE_TRANSACTIONS_OVERVIEW_LINK,
+      })}
+      {...rest}
+    />
   );
 }

@@ -8,6 +8,8 @@
 import { EuiButton, EuiCard, EuiTextColor } from '@elastic/eui';
 import React from 'react';
 import { i18n } from '@kbn/i18n';
+import { EBT_CLICK_ACTIONS, getEbtProps } from '@kbn/ebt-click';
+import { APM_EBT_ELEMENTS } from '../../app/ebt_constants';
 import { useApmPluginContext } from '../../../context/apm_plugin/use_apm_plugin_context';
 import { useKibanaUrl } from '../../../hooks/use_kibana_url';
 
@@ -39,6 +41,10 @@ export function LicensePrompt({ text }: LicensePromptProps) {
           data-test-subj="apmLicensePromptStartTrialButton"
           fill={true}
           href={manageLicenseURL}
+          {...getEbtProps({
+            action: EBT_CLICK_ACTIONS.START_TRIAL,
+            element: APM_EBT_ELEMENTS.LICENSE_PROMPT_START_TRIAL_BUTTON,
+          })}
         >
           {i18n.translate('xpack.apm.license.button', {
             defaultMessage: 'Start trial',

@@ -7,7 +7,9 @@
 
 import { EuiLink } from '@elastic/eui';
 import React from 'react';
+import { getEbtProps } from '@kbn/ebt-click';
 import { useMlManageJobsHref } from '../../../../hooks/use_ml_manage_jobs_href';
+import { APM_EBT_ACTIONS, APM_EBT_ELEMENTS } from '../../../app/ebt_constants';
 
 interface Props {
   children?: React.ReactNode;
@@ -33,6 +35,10 @@ export function MLManageJobsLink({
       href={mlADLink}
       external={external}
       target={external ? '_blank' : undefined}
+      {...getEbtProps({
+        action: APM_EBT_ACTIONS.MANAGE_ML_JOBS,
+        element: APM_EBT_ELEMENTS.ML_MANAGE_JOBS_LINK,
+      })}
     />
   );
 }

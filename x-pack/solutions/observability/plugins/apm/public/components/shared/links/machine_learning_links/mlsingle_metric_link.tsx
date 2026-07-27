@@ -8,7 +8,9 @@
 import type { ReactNode } from 'react';
 import React from 'react';
 import { EuiLink } from '@elastic/eui';
+import { EBT_CLICK_ACTIONS, getEbtProps } from '@kbn/ebt-click';
 import { useMlHref, ML_PAGES } from '@kbn/ml-plugin/public';
+import { APM_EBT_ELEMENTS } from '../../../app/ebt_constants';
 import { useApmPluginContext } from '../../../../context/apm_plugin/use_apm_plugin_context';
 import { useLegacyUrlParams } from '../../../../context/url_params_context/use_url_params';
 import { DEFAULT_REFRESH_INTERVAL } from '../../date_picker/apm_date_picker';
@@ -39,6 +41,10 @@ export function MLSingleMetricLink({
       href={href}
       external={external}
       target={external ? '_blank' : undefined}
+      {...getEbtProps({
+        action: EBT_CLICK_ACTIONS.VIEW_ANOMALIES,
+        element: APM_EBT_ELEMENTS.ML_SINGLE_METRIC_LINK,
+      })}
     />
   );
 }

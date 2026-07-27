@@ -8,6 +8,8 @@
 import type { EuiLinkAnchorProps } from '@elastic/eui';
 import { EuiLink } from '@elastic/eui';
 import React from 'react';
+import { EBT_CLICK_ACTIONS, getEbtProps } from '@kbn/ebt-click';
+import { APM_EBT_ELEMENTS } from '../../app/ebt_constants';
 import { useApmPluginContext } from '../../../context/apm_plugin/use_apm_plugin_context';
 
 // union type constisting of valid guide sections that we link to
@@ -34,7 +36,15 @@ export function ElasticDocsLink({ section, path, children, ...rest }: Props) {
     // @ts-expect-error @types/react@18 This expression is not callable.
     children(href)
   ) : (
-    <EuiLink data-test-subj="apmElasticDocsLinkLink" href={href} {...rest}>
+    <EuiLink
+      data-test-subj="apmElasticDocsLinkLink"
+      href={href}
+      {...getEbtProps({
+        action: EBT_CLICK_ACTIONS.VIEW_DOCS,
+        element: APM_EBT_ELEMENTS.ELASTIC_DOCS_LINK,
+      })}
+      {...rest}
+    >
       {children}
     </EuiLink>
   );
